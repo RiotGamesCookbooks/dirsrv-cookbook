@@ -21,6 +21,9 @@ end
 
 node['389ds']['instances'].each do |inst|
   directory_instance inst['name'] do
+    inst.each do |attr,val|
+      attr val
+    end
     notifies :start, "service[dirsrv]"
   end
 end

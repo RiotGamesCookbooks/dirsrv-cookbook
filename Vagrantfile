@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     }
 
     chef.run_list = [
-      "recipe[389ds::server]"
+      "recipe[389ds]"
     ]
   end
 end

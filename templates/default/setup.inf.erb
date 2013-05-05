@@ -1,50 +1,37 @@
 [General]
-FullMachineName = <%= node['fqdn'] %>
-SuiteSpotGroup = dirsrv
-SuiteSpotUserID = dirsrv
-<% if node['389ds']['has_admin'] or node['389ds']['is_admin'] -%>
-AdminDomain = amekoshi
-ConfigDirectoryAdminID = admin
-ConfigDirectoryAdminPwd = directorymgr
-ConfigDirectoryLdapURL = ldap://389ds:389/o=NetscapeRoot
+FullMachineName         = <%= node['fqdn'] %>
+SuiteSpotGroup          = dirsrv
+SuiteSpotUserID         = dirsrv
+<% if @params['admin_remote_host'] -%>
+  <% if @params['admin_domain'] %>
+AdminDomain             = <%= @params['admin_domain'] %>
+  <% end -%>
+ConfigDirectoryAdminID  = <%= @params['admin_id'] %>
+ConfigDirectoryAdminPwd = <%= @params['admin_pass'] %>
+ConfigDirectoryLdapURL  = ldap://<%= @params['admin_remote_host'] %>:<%= @params['admin_port'] %>/o=NetscapeRoot
 <% end -%>
-<% if node['389ds']['is_admin'] -%>
+
+<% if @params['admin_local_bindaddr'] -%>
 [admin]
-Port = 9830
-ServerAdminID = admin
-ServerAdminPwd = directorymgr
-ServerIpAddress = 0.0.0.0
-SysUser = dirsrv
+Port            = <%= @params['admin_port'] %>
+ServerAdminID   = <%= @params['admin_id'] %>
+ServerAdminPwd  = <%= @params['admin_pass'] %>
+ServerIpAddress = <%= @params['admin_local_bindaddr'] %>
+SysUser         = dirsrv
 <% end -%>
 
 [slapd]
-AddOrgEntries = No
-AddSampleEntries = No
-HashedRootDNPwd = {SSHA}IvEaF+ch/9RiO1R7lOQR9HtANv9/lNDPhUtK+A==
-InstallLdifFile = none
-RootDN = cn=Directory Manager
-RootDNPwd = rootpass
-ServerIdentifier = 389ds
-ServerPort = 389
-Suffix = o=amekoshi
-bak_dir = /var/lib/dirsrv/slapd-389ds/bak
-bindir = /usr/bin
-cert_dir = /etc/dirsrv/slapd-389ds
-config_dir = /etc/dirsrv/slapd-389ds
-datadir = /usr/share
-db_dir = /var/lib/dirsrv/slapd-389ds/db
-ds_bename = userRoot
-inst_dir = /usr/lib64/dirsrv/slapd-389ds
-ldif_dir = /var/lib/dirsrv/slapd-389ds/ldif
-localstatedir = /var
-lock_dir = /var/lock/dirsrv/slapd-389ds
-log_dir = /var/log/dirsrv/slapd-389ds
-run_dir = /var/run/dirsrv
-sbindir = /usr/sbin
-schema_dir = /etc/dirsrv/slapd-389ds/schema
-sysconfdir = /etc
-tmp_dir = /tmp
-
-[slapd]
-SlapdConfigForMC = yes
-UseExistingMC = 0
+AddOrgEntries    = <%= @params['add_org_entries'] %>
+AddSampleEntries = <%= @params['add_sample_entries'] %>
+InstallLdifFile  = <%= @params['preseed_ldif'] %>
+RootDN           = <%= @params['root_dn'] %>
+RootDNPwd        = <%= @params['root_pass'] %>
+ServerIdentifier = <%= @params['instance'] %>
+ServerPort       = <%= @params['port'] %>
+Suffix           = <%= @params['suffix'] %>
+bak_dir          = <%= @base_dir %>/slapd-<%= @params['instance'] %>/bak
+cert_dir         = <%= @conf_dir %>/slapd-<%= @params['instance'] %>
+config_dir       = <%= @conf_dir %>/slapd-<%= @params['instance'] %>
+db_dir           = <%= @base_dir %>/slapd-<%= @params['instance'] %>/db
+ldif_dir         = <%= @base_dir %>/slapd-<%= @params['instance'] %>/ldif
+schema_dir       = <%= @conf_dir %>/slapd-<%= @params['instance'] %>/schema

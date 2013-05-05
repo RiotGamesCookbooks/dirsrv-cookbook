@@ -1,23 +1,38 @@
 define :directory_instance,
   {
-    :is_admin => nil,
-    :admin_domain => nil,
-    :admin_user => nil,
-    :admin_pass => nil,
-    :admin_port => 9830,
-    :rootdn => nil,
-    :rootdn_pass => nil,
-    :instance => nil,
-    :port => 389,
-    :ssl_port => 636,
-    :bind_address => nil,
-    :org_entries => false,
-    :sample_entries => false,
+    :admin_domain         => nil,
+    :admin_id             => nil,
+    :admin_pass           => nil,
+    :admin_port           => nil,
+    :admin_local_bindaddr => nil,
+    :admin_remote_host    => nil,
+    :add_org_entries      => nil,
+    :add_sample_entries   => nil,
+    :preseed_ldif         => nil,
+    :root_dn              => 'cn=Directory Manager',
+    :root_pass            => nil,
+    :port                 => 389,
+    :suffix               => nil,
+    :instance             => nil
   } do
 
-  instance = params[:instance] ? params[:instance] : params[:name]
+  params[:instance] = params[:instance] ? params[:instance] : params[:name]
   tmpl = File.join node['389ds']['conf_dir'], instance + '.inf'
   setup = params[:is_admin] ? 'setup-ds-admin.pl' : 'setup-ds.pl'
+
+  [ 
+    'root_dn',
+    'root_pass',
+    'suffix'
+  ].each do |p|
+    unless params[p]
+      Chef::Application.fatal! "You must specify the #{p}!"
+    end
+  end
+
+  if params[:admin_local_bindaddr]
+    params[:admin_remote_host] = node[:ipaddress]
+  end
 
   template tmpl do
     source "setup.inf.erb"
@@ -25,9 +40,7 @@ define :directory_instance,
     owner "root"
     group "root"
     variables({ 
-      :general => params,
-      :admin   => params,
-      :slapd   => params,
+      :params   => params,
       :conf_dir => node['389ds']['conf_dir'],
       :base_dir => node['389ds']['base_dir']
     })
