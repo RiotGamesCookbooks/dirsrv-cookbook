@@ -1,0 +1,50 @@
+[General]
+FullMachineName = <%= node['fqdn'] %>
+SuiteSpotGroup = dirsrv
+SuiteSpotUserID = dirsrv
+<% if node['389ds']['has_admin'] or node['389ds']['is_admin'] -%>
+AdminDomain = amekoshi
+ConfigDirectoryAdminID = admin
+ConfigDirectoryAdminPwd = directorymgr
+ConfigDirectoryLdapURL = ldap://389ds:389/o=NetscapeRoot
+<% end -%>
+<% if node['389ds']['is_admin'] -%>
+[admin]
+Port = 9830
+ServerAdminID = admin
+ServerAdminPwd = directorymgr
+ServerIpAddress = 0.0.0.0
+SysUser = dirsrv
+<% end -%>
+
+[slapd]
+AddOrgEntries = No
+AddSampleEntries = No
+HashedRootDNPwd = {SSHA}IvEaF+ch/9RiO1R7lOQR9HtANv9/lNDPhUtK+A==
+InstallLdifFile = none
+RootDN = cn=Directory Manager
+RootDNPwd = rootpass
+ServerIdentifier = 389ds
+ServerPort = 389
+Suffix = o=amekoshi
+bak_dir = /var/lib/dirsrv/slapd-389ds/bak
+bindir = /usr/bin
+cert_dir = /etc/dirsrv/slapd-389ds
+config_dir = /etc/dirsrv/slapd-389ds
+datadir = /usr/share
+db_dir = /var/lib/dirsrv/slapd-389ds/db
+ds_bename = userRoot
+inst_dir = /usr/lib64/dirsrv/slapd-389ds
+ldif_dir = /var/lib/dirsrv/slapd-389ds/ldif
+localstatedir = /var
+lock_dir = /var/lock/dirsrv/slapd-389ds
+log_dir = /var/log/dirsrv/slapd-389ds
+run_dir = /var/run/dirsrv
+sbindir = /usr/sbin
+schema_dir = /etc/dirsrv/slapd-389ds/schema
+sysconfdir = /etc
+tmp_dir = /tmp
+
+[slapd]
+SlapdConfigForMC = yes
+UseExistingMC = 0
