@@ -8,27 +8,14 @@
 #
 
 include_recipe "yum::epel"
+include_recipe "sysctl"
 
 node['389ds']['packages'].each do |pkg|
   package pkg
 end
 
-user 'dirsrv' do
+user "dirsrv" do
   system true
   home node['389ds']['base_dir']
   shell "/sbin/nologin"
-end
-
-node['389ds']['instances'].each do |inst|
-  directory_instance inst['name'] do
-    inst.each do |attr,val|
-      attr val
-    end
-    notifies :start, "service[dirsrv]"
-  end
-end
-
-service "dirsrv" do
-  supports :status => true, :restart => true
-  action :enable
 end
