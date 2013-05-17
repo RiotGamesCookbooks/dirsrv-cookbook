@@ -1,4 +1,4 @@
-name             '389ds'
+name             'dirsrv'
 maintainer       'Alan Willis'
 maintainer_email 'alan@amekoshi.com'
 license          'All rights reserved'

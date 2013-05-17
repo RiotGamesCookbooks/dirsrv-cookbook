@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: 389ds
+# Cookbook Name:: dirsrv
 # Recipe:: default
 #
 # Copyright 2013, Alan Willis <alan@amekoshi.com>
@@ -7,15 +7,20 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "yum::epel"
-include_recipe "sysctl"
+if node['dirsrv']['use_epel']
+  include_recipe "yum::epel"
+end
 
-node['389ds']['packages'].each do |pkg|
+if node['dirsrv']['do_tuning']
+  include_recipe "sysctl"
+end
+
+node['dirsrv']['packages'].each do |pkg|
   package pkg
 end
 
 user "dirsrv" do
   system true
-  home node['389ds']['base_dir']
+  home node['dirsrv']['base_dir']
   shell "/sbin/nologin"
 end
