@@ -9,13 +9,23 @@
 
 include_recipe "dirsrv"
 
-directory_instance 'test' do
+dirsrv_instance 'admin' do
     is_admin             true
     admin_domain         "testdomain"
     admin_user           "admin"
     admin_pass           "password"
     admin_port           9830
-    admin_bindaddr       "0.0.0.0"
+    root_dn              'cn=Directory Manager'
+    root_pass            "password"
+    port                 388
+    suffix               'o=testorg'
+end
+
+dirsrv_instance 'test' do
+    admin_user           "admin"
+    admin_pass           "password"
+    admin_port           9830
+    admin_host           node[:ipaddress]
     root_dn              'cn=Directory Manager'
     root_pass            "password"
     port                 389

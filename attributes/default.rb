@@ -8,10 +8,10 @@
 #
 
 include_attribute 'sysctl'
-default['sysctl']['params']['net']['ipv4']['tcp_keepalive_time'] = 30
+default[:sysctl][:params][:net][:ipv4][:tcp_keepalive_time] = 30
 
-default['dirsrv']['packages'] = %w{389-ds}
-default['dirsrv']['conf_dir'] = '/etc/dirsrv'
-default['dirsrv']['base_dir'] = '/var/lib/dirsrv'
-default['dirsrv']['use_epel'] = false
-default['dirsrv']['do_tuning'] = false
+default[:dirsrv][:packages] = %w{389-ds}
+default[:dirsrv][:conf_dir] = '/etc/dirsrv'
+default[:dirsrv][:base_dir] = '/var/lib/dirsrv'
+default[:dirsrv][:use_epel] = false
+default[:dirsrv][:do_tuning] = false

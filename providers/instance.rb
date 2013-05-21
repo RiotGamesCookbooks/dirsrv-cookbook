@@ -13,38 +13,57 @@ end
 
 action :create do
 
-  tmpl = File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
+  tmpl = ::File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
   setup = new_resource.is_admin ? 'setup-ds-admin.pl' : 'setup-ds.pl'
-  instdir = File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
-  config = new_resource
+  instdir = ::File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
+  config = Hash.new
 
-  if config.admin_bindaddr and not config.admin_host
-    config.admin_host = config.admin_bindaddr
+  [
+    'instance',
+    'admin_domain',
+    'admin_user',
+    'admin_pass',
+    'admin_port',
+    'admin_bindaddr',
+    'admin_host',
+    'is_admin',
+    'add_org_entries',
+    'add_sample_entries',
+    'preseed_ldif',
+    'root_dn',
+    'root_pass',
+    'port',
+    'suffix',
+    'conf_dir',
+    'base_dir'
+  ].each do |attr|
+    config[attr] = new_resource.send(attr)
   end
 
-  if Dir.exists(instdir)
-    Chef::Log.info("Create: Instance '#{config.instance}' already exists!")
+  if new_resource.admin_bindaddr and new_resource.is_admin
+    config['admin_host'] = new_resource.admin_bindaddr
+  end
+
+  if ::Dir.exists?(instdir)
+    Chef::Log.info("Create: Instance '#{new_resource.instance}' already exists!")
   else
-    converge_by("Creating new instance #{config.instance}") do
+    converge_by("Creating new instance #{new_resource.instance}") do
       template tmpl do
         source "setup.inf.erb"
         mode "0600"
         owner "root"
         group "root"
         cookbook "dirsrv"
-        variables config
+        variables config 
       end
 
       execute setup do
         command "#{setup} --silent --file #{tmpl}"
-        creates File.join instdir, 'dse.ldif'
+        creates ::File.join instdir, 'dse.ldif'
       end
 
-      service "dirsrv" do
-        supports :status => true, :restart => true
-        action :enable
-        notifies :restart, "service[dirsrv-#{config.instance}]"
-      end
+      action_restart
+
     end
   end
 end

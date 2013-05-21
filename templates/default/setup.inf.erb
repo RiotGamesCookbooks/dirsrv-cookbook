@@ -2,36 +2,36 @@
 FullMachineName         = <%= node[:fqdn] %>
 SuiteSpotGroup          = dirsrv
 SuiteSpotUserID         = dirsrv
-<% if @params[:admin_remote_host] -%>
-  <% if @params[:admin_domain] %>
-AdminDomain             = <%= @params[:admin_domain] %>
+<% if @admin_host -%>
+  <% if @admin_domain %>
+AdminDomain             = <%= @admin_domain %>
   <% end -%>
-ConfigDirectoryAdminID  = <%= @params[:admin_id] %>
-ConfigDirectoryAdminPwd = <%= @params[:admin_pass] %>
-ConfigDirectoryLdapURL  = ldap://<%= @params[:admin_remote_host] %>:<%= @params[:admin_port] %>/o=NetscapeRoot
+ConfigDirectoryAdminID  = <%= @admin_user %>
+ConfigDirectoryAdminPwd = <%= @admin_pass %>
+ConfigDirectoryLdapURL  = ldap://<%= @admin_host %>:<%= @admin_port %>/o=NetscapeRoot
 <% end -%>
 
-<% if @params[:admin_local_bindaddr] -%>
+<% if @admin_bindaddr -%>
 [admin]
-Port            = <%= @params[:admin_port] %>
-ServerAdminID   = <%= @params[:admin_id] %>
-ServerAdminPwd  = <%= @params[:admin_pass] %>
-ServerIpAddress = <%= @params[:admin_local_bindaddr] %>
+Port            = <%= @admin_port %>
+ServerAdminID   = <%= @admin_user %>
+ServerAdminPwd  = <%= @admin_pass %>
+ServerIpAddress = <%= @admin_bindaddr %>
 SysUser         = dirsrv
 <% end -%>
 
 [slapd]
-AddOrgEntries    = <%= @params[:add_org_entries] %>
-AddSampleEntries = <%= @params[:add_sample_entries] %>
-InstallLdifFile  = <%= @params[:preseed_ldif] %>
-RootDN           = <%= @params[:root_dn] %>
-RootDNPwd        = <%= @params[:root_pass] %>
-ServerIdentifier = <%= @params[:instance] %>
-ServerPort       = <%= @params[:port] %>
-Suffix           = <%= @params[:suffix] %>
-cert_dir         = <%= @conf_dir %>/slapd-<%= @params[:instance] %>
-config_dir       = <%= @conf_dir %>/slapd-<%= @params[:instance] %>
-bak_dir          = <%= @base_dir %>/slapd-<%= @params[:instance] %>/bak
-db_dir           = <%= @base_dir %>/slapd-<%= @params[:instance] %>/db
-ldif_dir         = <%= @base_dir %>/slapd-<%= @params[:instance] %>/ldif
-schema_dir       = <%= @conf_dir %>/slapd-<%= @params[:instance] %>/schema
+AddOrgEntries    = <%= @add_org_entries %>
+AddSampleEntries = <%= @add_sample_entries %>
+InstallLdifFile  = <%= @preseed_ldif %>
+RootDN           = <%= @root_dn %>
+RootDNPwd        = <%= @root_pass %>
+ServerIdentifier = <%= @instance %>
+ServerPort       = <%= @port %>
+Suffix           = <%= @suffix %>
+cert_dir         = <%= @conf_dir %>/slapd-<%= @instance %>
+config_dir       = <%= @conf_dir %>/slapd-<%= @instance %>
+bak_dir          = <%= @base_dir %>/slapd-<%= @instance %>/bak
+db_dir           = <%= @base_dir %>/slapd-<%= @instance %>/db
+ldif_dir         = <%= @base_dir %>/slapd-<%= @instance %>/ldif
+schema_dir       = <%= @conf_dir %>/slapd-<%= @instance %>/schema
