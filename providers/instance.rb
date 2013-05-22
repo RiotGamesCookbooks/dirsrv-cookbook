@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: dirsrv
-# Provider:: directory_instance
+# Provider:: instance
 #
 # Copyright 2013, Alan Willis <alan@amekoshi.com>
 #
@@ -45,7 +45,7 @@ action :create do
   end
 
   if ::Dir.exists?(instdir)
-    Chef::Log.info("Create: Instance '#{new_resource.instance}' already exists!")
+    Chef::Log.info("Create: Instance '#{new_resource.instance}' exists")
   else
     converge_by("Creating new instance #{new_resource.instance}") do
       template tmpl do

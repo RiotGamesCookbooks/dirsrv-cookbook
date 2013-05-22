@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: dirsrv
-# Resource:: directory_instance
+# Resource:: dirsrv_instance
 #
 # Copyright 2013, Alan Willis <alan@amekoshi.com>
 #
