@@ -34,4 +34,4 @@ dirsrv_instance 'test' do
     action       [ :create, :start ]
 end
 
-dirsrv_entry 'entryname'
+dirsrv_entry 'ou=test,o=testorg'

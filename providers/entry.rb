@@ -12,7 +12,15 @@ def whyrun_supported?
 end
 
 action :create do
-  ldap = bind
+  current_attrs = get_current_attrs
+
+  converge_keys = new_resource.attributes.keys - current_attrs
+
+  if ( converge_keys.size > 0 )
+    puts "Converge keys!"
+    # Take all of the converge keys and converge by replacing all of their values
+  end
+
 end
 
 action :modify do
@@ -21,9 +29,7 @@ end
 action :delete do
 end
 
-def bind
-  Dirsrv.new( new_resource.host, 
-              new_resource.port, 
-              new_resource.userdn,
-              new_resource.pass )
+def get_current_attrs
+  ldap = Dirsrv.new
+  ldap.get_entry_attrs(new_resource)
 end
