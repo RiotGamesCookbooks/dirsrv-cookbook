@@ -45,7 +45,7 @@ class Dirsrv
     relativedn = r.dn.split(',').first
     attrs = r.attributes.merge(Hash[*relativedn.split('=').flatten])
     @ldap.add dn: r.dn, attributes: attrs
-    raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
+    raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|Entry Already Exists)/
   end
 
   def modify_entry ( r, attrlist, operation=:replace )
