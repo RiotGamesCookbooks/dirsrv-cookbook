@@ -40,7 +40,8 @@ action :create do
       end
     end
 
-    # Ignore objectClass, DN, and the RDN. These should only be modified upon object creation
+    # Ignore objectClass, Distinguished Name (DN), and the Relative DN. 
+    # These should only be modified upon entry creation to avoid schema violations
     rdn = new_resource.dn.split('=').first
     converge_keys.reject!{ |attr| attr =~ /(objectClass|DN)/i || attr == :"#{rdn}" }
 
