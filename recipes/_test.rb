@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: dirsrv
-# Recipe:: test_instance
+# Recipe:: _test
 #
 # Copyright 2013, Alan Willis <alan@amekoshi.com>
 #
@@ -34,4 +34,6 @@ dirsrv_instance 'test' do
     action       [ :create, :start ]
 end
 
-dirsrv_entry 'ou=test,o=testorg'
+dirsrv_entry 'ou=test,o=testorg' do
+    attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: [ '215-310-5555' ] })
+end

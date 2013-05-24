@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
     }
 
     chef.run_list = [
-      "recipe[dirsrv::test_instance]"
+      "recipe[dirsrv::_test]"
     ]
   end
 end

@@ -20,28 +20,44 @@ class Dirsrv
                             password: pass
                           }
 
-    raise IOError, 'Unable to bind' unless @ldap.get_operation_result.message == 'Success'
+    raise "Unable to bind: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
     @ldap
   end
 
   def get_entry ( r )
 
-    self.bind( r.host, r.port, r.userdn, r.pass )
+    self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
 
-    entry = self.ldap.search( 
+    entry = @ldap.search( 
               base:   r.dn, 
               filter: Net::LDAP::Filter.eq( 'objectClass', '*' ),
               scope:  Net::LDAP::SearchScope_BaseObject
             )
 
-    return [] unless entry
-    entry = entry.first
-    entry
+    raise "Error while searching: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
+    return entry ? entry.first : entry
   end
 
-  def get_entry_attrs ( r ) 
+  def add_entry ( r )
+
+    self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
+
+    relativedn = r.dn.split(',').first
+    attrs = r.attributes.merge(Hash[*relativedn.split('=').flatten])
+    @ldap.add dn: r.dn, attributes: attrs
+    raise "Unable add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
+  end
+
+  def modify_entry ( r, attrlist )
 
     entry = self.get_entry( r )
-    entry.attribute_names
+    ops = Array.new
+
+    attrlist.each do |attr|
+      ops.push([ :replace, attr, r.attributes[attr] ])
+    end
+
+    @ldap.modify dn: r.dn, operations: ops
+    raise "Unable modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
   end
 end
