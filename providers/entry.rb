@@ -27,20 +27,18 @@ action :create do
     end
   else
 
-  new_attrs = new_resource.attributes.keys
-  cur_attrs = entry.attribute_names.map{ |a| a.downcase }
-  converge_keys = new_attrs - cur_attrs
+    converge_keys = new_resource.attributes.keys - entry.attribute_names.map{ |k| k.downcase }
 
-  # Look for differences in the attribute values
-  new_attrs.each do |attr|
+    # Look for differences in the attribute values
+    new_resource.attributes.keys.each do |attr|
 
-    # Permit either a string or a single valued list
-    new_value = new_resource.attributes[attr].is_a?(String) ? [ new_resource.attributes[attr] ] : new_resource.attributes[attr]
+      # Permit either a string or a single valued list
+      values = new_resource.attributes[attr].is_a?(String) ? [ new_resource.attributes[attr] ] : new_resource.attributes[attr]
 
-    unless entry.respond_to?(attr) and new_value == entry.send(attr)
-      converge_keys.push(attr)
+      unless entry.respond_to?(attr) and values == entry.send(attr)
+        converge_keys.push(attr)
+      end
     end
-  end
 
     # Ignore objectClass, DN, and the RDN. These should only be modified upon object creation
     rdn = new_resource.dn.split('=').first
