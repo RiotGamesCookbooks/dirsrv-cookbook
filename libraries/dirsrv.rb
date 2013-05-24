@@ -45,19 +45,27 @@ class Dirsrv
     relativedn = r.dn.split(',').first
     attrs = r.attributes.merge(Hash[*relativedn.split('=').flatten])
     @ldap.add dn: r.dn, attributes: attrs
-    raise "Unable add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
+    raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
   end
 
-  def modify_entry ( r, attrlist )
+  def modify_entry ( r, attrlist, operation=:replace )
 
     entry = self.get_entry( r )
     ops = Array.new
 
     attrlist.each do |attr|
-      ops.push([ :replace, attr, r.attributes[attr] ])
+      values = operation == :delete ? nil : r.attributes[attr]
+      ops.push([ operation, attr, values ])
     end
 
     @ldap.modify dn: r.dn, operations: ops
-    raise "Unable modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
+    raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Attribute)/
+  end
+
+  def delete_entry ( r )
+
+    self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
+    @ldap.delete dn: r.dn
+    raise "Unable to remove record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
   end
 end

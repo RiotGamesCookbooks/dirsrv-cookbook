@@ -10,30 +10,31 @@
 include_recipe "dirsrv"
 
 dirsrv_instance 'admin' do
-    is_admin     true
-    admin_domain "testdomain"
-    admin_user   "admin"
-    admin_pass   "password"
-    admin_port   9830
-    root_dn      'cn=Directory Manager'
-    root_pass    "password"
-    port         388
-    suffix       'o=testorg'
-    action       [ :create, :start ]
+  is_admin     true
+  admin_domain "testdomain"
+  admin_user   "admin"
+  admin_pass   "password"
+  admin_port   9830
+  root_dn      'cn=Directory Manager'
+  root_pass    "password"
+  port         388
+  suffix       'o=testorg'
+  action       [ :create, :start ]
 end
 
 dirsrv_instance 'test' do
-    admin_user   "admin"
-    admin_pass   "password"
-    admin_port   9830
-    admin_host   node[:ipaddress]
-    root_dn      'cn=Directory Manager'
-    root_pass    "password"
-    port         389
-    suffix       'o=testorg'
-    action       [ :create, :start ]
+  admin_user   "admin"
+  admin_pass   "password"
+  admin_port   9830
+  admin_host   node[:ipaddress]
+  root_dn      'cn=Directory Manager'
+  root_pass    "password"
+  port         389
+  suffix       'o=testorg'
+  action       [ :create, :start ]
 end
 
 dirsrv_entry 'ou=test,o=testorg' do
-    attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: [ '215-310-5555' ] })
+  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
+  prune_attributes ([ :postalCode ])
 end
