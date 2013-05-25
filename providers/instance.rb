@@ -70,51 +70,57 @@ end
 
 action :start do
 
-  service "dirsrv-#{new_resource.instance}" do
-    service_name "dirsrv"
-    supports :status => true
-    start_command "/sbin/service dirsrv start #{new_resource.instance}"
-    status_command "/sbin/service dirsrv status #{new_resource.instance}"
-    action :start
-  end
+  converge_by("Starting #{new_resource.instance}") do
+    service "dirsrv-#{new_resource.instance}" do
+      service_name "dirsrv"
+      supports :status => true
+      start_command "/sbin/service dirsrv start #{new_resource.instance}"
+      status_command "/sbin/service dirsrv status #{new_resource.instance}"
+      action :start
+    end
 
-  if new_resource.is_admin
-    service "dirsrv-admin" do
-      action [ :enable, :start ]
+    if new_resource.is_admin
+      service "dirsrv-admin" do
+        action [ :enable, :start ]
+      end
     end
   end
 end
 
 action :stop do
 
-  service "dirsrv-#{new_resource.instance}" do
-    service_name "dirsrv"
-    supports :status => true
-    stop_command "/sbin/service dirsrv stop #{new_resource.instance}"
-    status_command "/sbin/service dirsrv status #{new_resource.instance}"
-    action :stop
-  end
-
-  if new_resource.is_admin
-    service "dirsrv-admin" do
+  converge_by("Starting #{new_resource.instance}") do
+    service "dirsrv-#{new_resource.instance}" do
+      service_name "dirsrv"
+      supports :status => true
+      stop_command "/sbin/service dirsrv stop #{new_resource.instance}"
+      status_command "/sbin/service dirsrv status #{new_resource.instance}"
       action :stop
+    end
+
+    if new_resource.is_admin
+      service "dirsrv-admin" do
+        action :stop
+      end
     end
   end
 end
 
 action :restart do
 
-  service "dirsrv-#{new_resource.instance}" do
-    service_name "dirsrv"
-    supports :status => true
-    restart_command "/sbin/service dirsrv restart #{new_resource.instance}"
-    status_command "/sbin/service dirsrv status #{new_resource.instance}"
-    action :restart
-  end
-
-  if new_resource.is_admin
-    service "dirsrv-admin" do
+  converge_by("Starting #{new_resource.instance}") do
+    service "dirsrv-#{new_resource.instance}" do
+      service_name "dirsrv"
+      supports :status => true
+      restart_command "/sbin/service dirsrv restart #{new_resource.instance}"
+      status_command "/sbin/service dirsrv status #{new_resource.instance}"
       action :restart
+    end
+
+    if new_resource.is_admin
+      service "dirsrv-admin" do
+        action :restart
+      end
     end
   end
 end
