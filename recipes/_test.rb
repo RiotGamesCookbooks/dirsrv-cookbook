@@ -34,10 +34,17 @@ dirsrv_instance 'test' do
   action       [ :create, :start ]
 end
 
-#dirsrv_config "nsslapd-auditlog-logging-enabled=on" do
-#  userdn 'cn=Directory Manager'
-#  pass   'password'
-#end
+dirsrv_config "nsslapd-auditlog-logging-enabled" do
+  userdn 'cn=Directory Manager'
+  pass   'password'
+  value  'on'
+end
+
+dirsrv_config "nsslapd-auditlog" do
+  userdn 'cn=Directory Manager'
+  pass   'password'
+  value  '/var/log/dirsrv/slapd-test/audit'
+end
 
 dirsrv_entry 'ou=test,o=testorg' do
   host        node[:ipaddress]
