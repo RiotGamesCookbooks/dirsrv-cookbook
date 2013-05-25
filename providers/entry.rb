@@ -59,8 +59,6 @@ def modify_entry
       [ :add, attr, @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr] ]
     }
 
-    p add_keys.inspect
-
     # Update existing keys, do not remove existing values unless no_clobber is set
     update_keys = Array.new
     ( @new_resource.attributes.keys & @current_resource.attribute_names ).each do |attr|
@@ -73,16 +71,14 @@ def modify_entry
       # Values supplied to new_resource may be a string or a list
       new_values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
       cur_values = @current_resource.send(attr)
-      values = ( new_values - cur_values )
+      noclobber_values = ( new_values - cur_values )
 
-      if @new_resource.no_clobber and values.size > 0
-        update_keys.push([ :add, attr, values ])
-      elsif values.size > 0
-        update_keys.push([ :replace, attr, values ])
+      if @new_resource.no_clobber and noclobber_values.size > 0
+        update_keys.push([ :add, attr, noclobber_values ])
+      elsif new_values.size > 0
+        update_keys.push([ :replace, attr, new_values ])
       end
     end
-
-    p update_keys.inspect
 
     # Prune unwanted attributes and/or values
     prune_keys = Array.new
@@ -94,15 +90,13 @@ def modify_entry
     elsif @new_resource.prune.is_a?(Hash)
       @new_resource.prune.each do |attr, value|
         next unless @current_resource.respond_to?(attr)
-        prune_keys.push([ :delete, attr, value ])
+        prune_keys.push([ :delete, attr, [ value ]])
       end
     end
 
-    p prune_keys.inspect
-
     # Modify entry 
     if ( add_keys | update_keys | prune_keys ).size > 0
-      Chef::Log.info("Updating #{update_keys} on #{@new_resource.dn}")
+      Chef::Log.info("Updating #{@new_resource.dn}")
       dirsrv.modify_entry(@new_resource, ( add_keys | update_keys | prune_keys ))
       @new_resource.updated_by_last_action(true)
     end

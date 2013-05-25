@@ -45,6 +45,5 @@ dirsrv_entry 'ou=test,o=testorg' do
   userdn     'cn=Directory Manager'
   pass       'password'
   attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune ([ :postalCode ])
-  no_clobber true
+  prune ({ postalCode: 90210 })
 end

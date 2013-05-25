@@ -52,7 +52,7 @@ class Chef
     def modify_entry ( r, ops )
   
       entry = self.get_entry( r )
-  
+
       @ldap.modify dn: r.dn, operations: ops
       raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Attribute)/
     end
