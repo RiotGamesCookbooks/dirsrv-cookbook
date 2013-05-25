@@ -34,6 +34,15 @@ dirsrv_instance 'test' do
   action       [ :create, :start ]
 end
 
+dirsrv_entry 'ou=test,o=testorg' do
+  host        node[:ipaddress]
+  port        389
+  userdn     'cn=Directory Manager'
+  pass       'password'
+  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
+  prune      ([ :postalCode, :description ])
+end
+
 dirsrv_config "nsslapd-auditlog-logging-enabled" do
   userdn 'cn=Directory Manager'
   pass   'password'
@@ -46,11 +55,20 @@ dirsrv_config "nsslapd-auditlog" do
   value  '/var/log/dirsrv/slapd-test/audit'
 end
 
-dirsrv_entry 'ou=test,o=testorg' do
-  host        node[:ipaddress]
-  port        389
+dirsrv_plugin "MemberOf Plugin" do
+  userdn 'cn=Directory Manager'
+  pass   'password'
+end
+
+dirsrv_plugin "Posix Winsync API" do
+  userdn 'cn=Directory Manager'
+  pass   'password'
+  attributes ({ posixwinsynccreatememberoftask: 'true' })
+end
+
+dirsrv_plugin "referential integrity postoperation" do
   userdn     'cn=Directory Manager'
   pass       'password'
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
+  attributes ({ :'nsslapd-pluginEnabled' => 'on' })
+  action     :modify
 end
