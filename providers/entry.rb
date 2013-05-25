@@ -20,7 +20,7 @@ action :create do
     @new_resource.attributes[k.downcase] = @new_resource.attributes.delete(k)
   end
 
-  converge_by("Updating entry #{@new_resource.dn}") do
+  converge_by("Entry #{@new_resource.dn}") do
     modify_entry
   end
 end
@@ -59,7 +59,7 @@ def modify_entry
       [ :add, attr, @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr] ]
     }
 
-    # Update existing keys, do not remove existing values unless no_clobber is set
+    # Update existing keys, remove existing values if clobber is set
     update_keys = Array.new
     ( @new_resource.attributes.keys & @current_resource.attribute_names ).each do |attr|
 
@@ -69,14 +69,19 @@ def modify_entry
       next if attr =~ /(objectClass|DN)/i || attr <=> rdn 
 
       # Values supplied to new_resource may be a string or a list
-      new_values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
-      cur_values = @current_resource.send(attr)
-      noclobber_values = ( new_values - cur_values )
+      values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
 
-      if @new_resource.no_clobber and noclobber_values.size > 0
-        update_keys.push([ :add, attr, noclobber_values ])
-      elsif new_values.size > 0
-        update_keys.push([ :replace, attr, new_values ])
+      if values != @current_resource.send(attr)
+
+        values = @new_resource.clobber ? values : ( values - @current_resource.send(attr) ) 
+
+        if values.size > 0
+          if @new_resource.clobber
+            update_keys.push([ :replace, attr, values ])
+          else
+            update_keys.push([ :add, attr, values ])
+          end
+        end
       end
     end
 
@@ -88,16 +93,33 @@ def modify_entry
         prune_keys.push([ :delete, attr, nil ])
       end
     elsif @new_resource.prune.is_a?(Hash)
-      @new_resource.prune.each do |attr, value|
+      @new_resource.prune.each do |attr, values|
         next unless @current_resource.respond_to?(attr)
-        prune_keys.push([ :delete, attr, [ value ]])
+        values = values.is_a?(String) ? [ values ] : values
+        values = ( values & @current_resource.send(attr) )
+        prune_keys.push([ :delete, attr, values ]) if values.size > 0
       end
     end
 
-    # Modify entry 
+    # Modify entry if there are any changes to be made
     if ( add_keys | update_keys | prune_keys ).size > 0
-      Chef::Log.info("Updating #{@new_resource.dn}")
-      dirsrv.modify_entry(@new_resource, ( add_keys | update_keys | prune_keys ))
+      # Submit one set of operations at a time, easier to debug
+
+      if add_keys.size > 0
+        Chef::Log.info("Add #{@new_resource.dn} #{ add_keys }")
+        dirsrv.modify_entry(@new_resource, add_keys)
+      end
+
+      if update_keys.size > 0
+        Chef::Log.info("Update #{@new_resource.dn} #{update_keys}")
+        dirsrv.modify_entry(@new_resource, update_keys)
+      end
+
+      if prune_keys.size > 0
+        Chef::Log.info("Delete #{@new_resource.dn} #{prune_keys}")
+        dirsrv.modify_entry(@new_resource, prune_keys)
+      end
+
       @new_resource.updated_by_last_action(true)
     end
   end
