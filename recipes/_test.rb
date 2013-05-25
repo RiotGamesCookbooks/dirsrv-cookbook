@@ -28,13 +28,23 @@ dirsrv_instance 'test' do
   admin_port   9830
   admin_host   node[:ipaddress]
   root_dn      'cn=Directory Manager'
-  root_pass    "password"
+  root_pass    'password'
   port         389
   suffix       'o=testorg'
   action       [ :create, :start ]
 end
 
+#dirsrv_config "nsslapd-auditlog-logging-enabled=on" do
+#  userdn 'cn=Directory Manager'
+#  pass   'password'
+#end
+
 dirsrv_entry 'ou=test,o=testorg' do
+  host        node[:ipaddress]
+  port        389
+  userdn     'cn=Directory Manager'
+  pass       'password'
   attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune_attributes ([ :postalCode ])
+  prune ([ :postalCode ])
+  no_clobber true
 end

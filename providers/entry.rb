@@ -21,7 +21,7 @@ action :create do
   end
 
   converge_by("Updating entry #{@new_resource.dn}") do
-    create_update_entry
+    modify_entry
   end
 end
 
@@ -38,15 +38,15 @@ end
 
 def load_current_resource
 
-  dirsrv = Dirsrv.new
+  dirsrv = Chef::Dirsrv.new
   @current_resource = dirsrv.get_entry(@new_resource)
-  @current_resource.attribute_names.map!{ |k| k.downcase }
+  @current_resource.attribute_names.map!{ |k| k.downcase } if @current_resource
   @current_resource
 end
 
-def create_update_entry
+def modify_entry
 
-  dirsrv = Dirsrv.new
+  dirsrv = Chef::Dirsrv.new
 
   if @current_resource.nil?
     Chef::Log.info("Adding #{@new_resource.dn}")
@@ -54,39 +54,56 @@ def create_update_entry
     @new_resource.updated_by_last_action(true)
   else
 
-    # Add keys that are missing to the update list
-    update_keys = @new_resource.attributes.keys - @current_resource.attribute_names
+    # Add keys that are missing
+    add_keys = ( @new_resource.attributes.keys - @current_resource.attribute_names ).map{ |attr|
+      [ :add, attr, @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr] ]
+    }
 
-    # Look for differences in the attribute values for common keys
+    p add_keys.inspect
+
+    # Update existing keys, do not remove existing values unless no_clobber is set
+    update_keys = Array.new
     ( @new_resource.attributes.keys & @current_resource.attribute_names ).each do |attr|
 
-      # Permit either a string or a single valued list
-      values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
+      # Ignore objectClass, Distinguished Name (DN), and the Relative DN. 
+      # These should only be modified upon entry creation to avoid schema violations
+      rdn = @new_resource.dn.split('=').first
+      next if attr =~ /(objectClass|DN)/i || attr <=> rdn 
 
-      unless values == @current_resource.send(attr)
-        update_keys.push(attr)
+      # Values supplied to new_resource may be a string or a list
+      new_values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
+      cur_values = @current_resource.send(attr)
+      values = ( new_values - cur_values )
+
+      if @new_resource.no_clobber and values.size > 0
+        update_keys.push([ :add, attr, values ])
+      elsif values.size > 0
+        update_keys.push([ :replace, attr, values ])
       end
     end
 
-    # Ignore objectClass, Distinguished Name (DN), and the Relative DN. 
-    # These should only be modified upon entry creation to avoid schema violations
-    rdn = @new_resource.dn.split('=').first
-    update_keys.reject!{ |attr| attr =~ /(objectClass|DN)/i || attr <=> rdn }
+    p update_keys.inspect
 
-    # Don't attempt to remove nonexistent attributes
-    @new_resource.prune_attributes.select!{ |attr| @current_resource.respond_to?(attr) }
-
-    # Prune 
-    if @new_resource.prune_attributes.size > 0
-      Chef::Log.info("Removing #{@new_resource.prune_attributes} from #{@new_resource.dn}")
-      dirsrv.modify_entry(@new_resource, @new_resource.prune_attributes, :delete)
-      @new_resource.updated_by_last_action(true) 
+    # Prune unwanted attributes and/or values
+    prune_keys = Array.new
+    if @new_resource.prune.is_a?(Array)
+      @new_resource.prune.each do |attr|
+        next unless @current_resource.respond_to?(attr)
+        prune_keys.push([ :delete, attr, nil ])
+      end
+    elsif @new_resource.prune.is_a?(Hash)
+      @new_resource.prune.each do |attr, value|
+        next unless @current_resource.respond_to?(attr)
+        prune_keys.push([ :delete, attr, value ])
+      end
     end
 
-    # Update 
-    if update_keys.size > 0
+    p prune_keys.inspect
+
+    # Modify entry 
+    if ( add_keys | update_keys | prune_keys ).size > 0
       Chef::Log.info("Updating #{update_keys} on #{@new_resource.dn}")
-      dirsrv.modify_entry(@new_resource, update_keys)
+      dirsrv.modify_entry(@new_resource, ( add_keys | update_keys | prune_keys ))
       @new_resource.updated_by_last_action(true)
     end
   end

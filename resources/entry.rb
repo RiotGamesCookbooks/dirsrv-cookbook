@@ -12,8 +12,9 @@ default_action :create
 
 attribute :dn, :kind_of => String, :name_attribute => true
 attribute :attributes, :kind_of => Hash, :default => {}
-attribute :prune_attributes, :kind_of => Array, :default => []
+attribute :prune, :kind_of => [ Array, Hash ], :default => []
+attribute :no_clobber, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
-attribute :userdn, :kind_of => String, :default => 'cn=Directory Manager'
-attribute :pass, :kind_of => String, :default => 'password'
+attribute :userdn, :kind_of => String, :required => true
+attribute :pass, :kind_of => String, :required => true
