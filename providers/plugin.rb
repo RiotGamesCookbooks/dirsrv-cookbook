@@ -20,18 +20,8 @@ action :enable do
       port   new_resource.port
       userdn new_resource.userdn
       pass   new_resource.pass
-      attributes ({ :'nsslapd-pluginEnabled' => 'on' })
-    end
-
-    # There are many default attributes for plugins
-    # To remove/reset them, use the :modify action
-    dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
-      host   new_resource.host
-      port   new_resource.port
-      userdn new_resource.userdn
-      pass   new_resource.pass
-      attributes new_resource.attributes
-      clobber false
+      attributes new_resource.attributes.merge({ :'nsslapd-pluginEnabled' => 'on' })
+      append_attributes new_resource.append_attributes
     end
   end
 end
@@ -45,6 +35,7 @@ action :modify do
       userdn new_resource.userdn
       pass   new_resource.pass
       attributes new_resource.attributes
+      append_attributes new_resource.append_attributes
     end
   end
 end

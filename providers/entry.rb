@@ -54,33 +54,39 @@ def modify_entry
     @new_resource.updated_by_last_action(true)
   else
 
+    all_attributes = @new_resource.attributes.merge(@new_resource.append_attributes)
+
     # Add keys that are missing
-    add_keys = ( @new_resource.attributes.keys - @current_resource.attribute_names ).map{ |attr|
-      [ :add, attr, @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr] ]
+    add_keys = ( all_attributes.keys - @current_resource.attribute_names ).map{ |attr|
+      [ :add, attr, all_attributes[attr].is_a?(String) ? [ all_attributes[attr] ] : all_attributes[attr] ]
     }
 
-    # Update existing keys, remove existing values if clobber is set
+    # Update existing keys, append values if necessary
     update_keys = Array.new
-    ( @new_resource.attributes.keys & @current_resource.attribute_names ).each do |attr|
+
+    ( all_attributes.keys & @current_resource.attribute_names ).each do |attr|
 
       # Ignore objectClass, Distinguished Name (DN), and the Relative DN. 
       # These should only be modified upon entry creation to avoid schema violations
       rdn = @new_resource.dn.split('=').first
       next if attr =~ /(objectClass|DN)/i || attr <=> rdn 
 
-      # Values supplied to new_resource may be a string or a list
-      values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
+      if @new_resource.append_attributes[attr]
 
-      if values != @current_resource.send(attr)
+        append_values = @new_resource.append_attributes[attr].is_a?(String) ? [ @new_resource.append_attributes[attr] ] : @new_resource.append_attributes[attr]
+        append_values -= @current_resource.send(attr)
 
-        values = @new_resource.clobber ? values : ( values - @current_resource.send(attr) ) 
+        if append_values.size > 0 
+          update_keys.push([ :add, attr, append_values ])
+        end
+      end
 
-        if values.size > 0
-          if @new_resource.clobber
-            update_keys.push([ :replace, attr, values ])
-          else
-            update_keys.push([ :add, attr, values ])
-          end
+      if @new_resource.attributes[attr]
+
+        replace_values = @new_resource.attributes[attr].is_a?(String) ? [ @new_resource.attributes[attr] ] : @new_resource.attributes[attr]
+
+        if ( replace_values.size > 0 ) and ( replace_values != @current_resource.send(attr) )
+          update_keys.push([ :replace, attr, replace_values ])
         end
       end
     end
