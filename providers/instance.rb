@@ -55,11 +55,13 @@ action :create do
         group "root"
         cookbook "dirsrv"
         variables config 
+        notifies :run, "execute[setup-#{new_resource.instance}]"
       end
 
-      execute setup do
+      execute "setup-#{new_resource.instance}" do
         command "#{setup} --silent --file #{tmpl}"
         creates ::File.join instdir, 'dse.ldif'
+        action :nothing
       end
 
       action_restart
@@ -111,7 +113,7 @@ action :restart do
   converge_by("Starting #{new_resource.instance}") do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
-      supports :status => true
+      supports :status => true, :restart => true
       restart_command "/sbin/service dirsrv restart #{new_resource.instance}"
       status_command "/sbin/service dirsrv status #{new_resource.instance}"
       action :restart

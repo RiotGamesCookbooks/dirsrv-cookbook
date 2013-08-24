@@ -20,6 +20,7 @@ node[:dirsrv][:packages].each do |pkg|
 end
 
 chef_gem "net-ldap"
+chef_gem "cicphash"
 
 user "dirsrv" do
   system true

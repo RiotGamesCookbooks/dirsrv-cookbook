@@ -9,7 +9,9 @@ class Chef
     attr_accessor :ldap
   
     def initialize
+      require 'rubygems'
       require 'net-ldap'
+      require 'cicphash'
     end
   
     def bind ( host, port, userdn, pass )
@@ -26,7 +28,7 @@ class Chef
     end
   
     def get_entry ( r )
-  
+ 
       self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
   
       entry = @ldap.search( 
@@ -44,9 +46,11 @@ class Chef
       self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
   
       relativedn = r.dn.split(',').first
-      attrs = r.attributes.merge(Hash[*relativedn.split('=').flatten])
+      # Cast as a case insensitive, case preserving hash
+      attrs = CICPHash.new.merge!(r.attributes)
+      attrs.merge(Hash[*relativedn.split('=').flatten])
       @ldap.add dn: r.dn, attributes: attrs
-      raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|Entry Already Exists)/
+      raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
     end
   
     def modify_entry ( r, ops )

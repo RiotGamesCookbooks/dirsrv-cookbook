@@ -23,6 +23,7 @@ Vagrant.configure("2") do |config|
   config.ssh.timeout   = 120
 
   config.vm.provision :chef_solo do |chef|
+
     chef.json = {
       :dirsrv => {
         :do_tuning => true,

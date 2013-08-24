@@ -72,3 +72,6 @@ dirsrv_plugin "referential integrity postoperation" do
   attributes ({ :'nsslapd-pluginEnabled' => 'on' })
   action     :modify
 end
+
+cert = Chef::DirsrvCertificate.new
+p cert.load

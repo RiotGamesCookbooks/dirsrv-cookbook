@@ -9,8 +9,11 @@ class Chef
       if Chef::Config[:solo]
         {
           id: "certificates",
-          selfsigned: {
-            pin: "IAmSelfSigned"
+          test: {
+            certname: "selfsigned",
+            pin: "IAmSelfSigned",
+            keysize: 2048,
+            trustbits: "CT,u,u"
           }
         } 
       else
