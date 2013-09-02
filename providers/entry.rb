@@ -51,7 +51,7 @@ def modify_entry
   if @current_resource.nil?
     Chef::Log.info("Adding #{@new_resource.dn}")
     dirsrv.add_entry(@new_resource)
-    @new_resource.updated_by_last_action(true)
+    new_resource.updated_by_last_action(true)
   else
 
     all_attributes = @new_resource.attributes.merge(@new_resource.append_attributes)
@@ -126,7 +126,7 @@ def modify_entry
         dirsrv.modify_entry(@new_resource, prune_keys)
       end
 
-      @new_resource.updated_by_last_action(true)
+      new_resource.updated_by_last_action(true)
     end
   end
 end

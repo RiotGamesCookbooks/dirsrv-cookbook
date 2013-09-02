@@ -1,5 +1,5 @@
 # Cookbook Name:: dirsrv
-# Resource:: dirsrv_plugin
+# Resource:: plugin
 #
 # Copyright 2013, Alan Willis <alan@amekoshi.com>
 #
