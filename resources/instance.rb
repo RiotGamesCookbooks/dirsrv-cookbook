@@ -21,8 +21,8 @@ attribute :is_admin, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :add_org_entries, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :add_sample_entries, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :preseed_ldif, :kind_of => String
-attribute :root_dn, :kind_of => String, :default => 'cn=Directory Manager'
-attribute :root_pass, :kind_of => String
+attribute :rootdn, :kind_of => [ String, NilClass ], :default => nil
+attribute :password, :kind_of => [ String, NilClass ], :default => nil
 attribute :port, :kind_of => Integer, :default => 389
 attribute :suffix, :kind_of => String
 attribute :conf_dir, :kind_of => String, :default => node[:dirsrv][:conf_dir]

@@ -30,14 +30,28 @@ action :create do
     'add_org_entries',
     'add_sample_entries',
     'preseed_ldif',
-    'root_dn',
-    'root_pass',
+    'rootdn',
+    'password',
     'port',
     'suffix',
     'conf_dir',
     'base_dir'
   ].each do |attr|
     config[attr] = new_resource.send(attr)
+  end
+
+  unless ( config['rootdn'] and config['password'] )
+
+    # If userdn and pass were not specified, fall back onto the
+    # credentials provided by the directory_manager item in the dirsrv databag
+
+    require 'chef/data_bag_item'
+    require 'chef/encrypted_data_bag_item'
+
+    secret = Chef::EncryptedDataBagItem.load_secret(Chef::Config[:encrypted_data_bag_secret])
+    credentials = Chef::EncryptedDataBagItem.load( 'dirsrv', 'directory_manager', secret )
+    config['rootdn'] = credentials['rootdn']
+    config['password'] = credentials['password']
   end
 
   if new_resource.admin_bindaddr and new_resource.is_admin

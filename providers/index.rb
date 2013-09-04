@@ -40,7 +40,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes idxattrs
     end
 
@@ -48,7 +48,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes taskattrs
       action :nothing
       subscribes :create, "dirsrv_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.instance},cn=ldbm database,cn=plugins,cn=config]", :immediately

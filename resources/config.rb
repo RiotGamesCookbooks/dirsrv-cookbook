@@ -13,5 +13,5 @@ attribute :attr, :kind_of => String, :name_attribute => true
 attribute :value, :kind_of => [ String, Array ], :default => []
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
-attribute :userdn, :kind_of => String, :required => true
-attribute :pass, :kind_of => String, :required => true
+attribute :userdn, :kind_of => [ String, NilClass ], :default => nil
+attribute :password, :kind_of => [ String, NilClass ], :default => nil

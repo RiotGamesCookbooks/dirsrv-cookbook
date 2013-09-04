@@ -19,7 +19,7 @@ action :enable do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes ({ new_resource.attr.to_sym => new_resource.value })
     end
   end
@@ -33,7 +33,7 @@ action :disable do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       prune  new_resource.value ? { new_resource.attr.to_sym => new_resource.value } : [ new_resource.attr.to_sym ]
     end
   end

@@ -19,7 +19,7 @@ action :enable do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes new_resource.attributes.merge({ :'nsslapd-pluginEnabled' => 'on' })
       append_attributes new_resource.append_attributes
     end
@@ -33,7 +33,7 @@ action :modify do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes new_resource.attributes
       append_attributes new_resource.append_attributes
     end
@@ -47,7 +47,7 @@ action :disable do
       host   new_resource.host
       port   new_resource.port
       userdn new_resource.userdn
-      pass   new_resource.pass
+      password new_resource.password
       attributes ({ :'nsslapd-pluginEnabled' => 'off' })
     end
   end

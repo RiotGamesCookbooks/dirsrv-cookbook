@@ -14,13 +14,28 @@ class Chef
       require 'cicphash'
     end
   
-    def bind ( host, port, userdn, pass )
+    def bind ( host, port, userdn, password )
+
+      unless ( userdn and password )
+
+        # If userdn and pass were not specified, fall back onto the 
+        # credentials provided by the directory_manager item in the dirsrv databag
+
+        require 'chef/data_bag_item'
+        require 'chef/encrypted_data_bag_item'
+
+        secret = Chef::EncryptedDataBagItem.load_secret(Chef::Config[:encrypted_data_bag_secret])
+        credentials = Chef::EncryptedDataBagItem.load( 'dirsrv', 'directory_manager', secret )
+        userdn = credentials['rootdn']
+        password = credentials['password']
+      end
+
       @ldap = Net::LDAP.new host: host,
                             port: port,
                             auth: { 
                               method:   :simple,
                               username: userdn,
-                              password: pass
+                              password: password
                             }
   
       raise "Unable to bind: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
@@ -29,7 +44,7 @@ class Chef
   
     def get_entry ( r )
  
-      self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
+      self.bind( r.host, r.port, r.userdn, r.password ) unless @ldap
   
       entry = @ldap.search( 
                 base:   r.dn, 
@@ -43,7 +58,7 @@ class Chef
   
     def add_entry ( r )
   
-      self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
+      self.bind( r.host, r.port, r.userdn, r.password ) unless @ldap
   
       relativedn = r.dn.split(',').first
       # Cast as a case insensitive, case preserving hash
@@ -63,7 +78,7 @@ class Chef
   
     def delete_entry ( r )
   
-      self.bind( r.host, r.port, r.userdn, r.pass ) unless @ldap
+      self.bind( r.host, r.port, r.userdn, r.password ) unless @ldap
       @ldap.delete dn: r.dn
       raise "Unable to remove record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
     end
