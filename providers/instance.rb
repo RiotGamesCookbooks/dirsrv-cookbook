@@ -14,48 +14,59 @@ end
 action :create do
 
   tmpl = ::File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
-  setup = new_resource.is_admin ? 'setup-ds-admin.pl' : 'setup-ds.pl'
+  setup = new_resource.has_cfgdir ? 'setup-ds-admin.pl' : 'setup-ds.pl'
   instdir = ::File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
-  config = Hash.new
 
-  [
-    'instance',
-    'admin_domain',
-    'admin_user',
-    'admin_pass',
-    'admin_port',
-    'admin_bindaddr',
-    'admin_host',
-    'is_admin',
-    'add_org_entries',
-    'add_sample_entries',
-    'preseed_ldif',
-    'rootdn',
-    'password',
-    'port',
-    'suffix',
-    'conf_dir',
-    'base_dir'
-  ].each do |attr|
-    config[attr] = new_resource.send(attr)
-  end
+  config = {
+    instance:    new_resource.instance,
+    suffix:      new_resource.suffix,
+    host:        new_resource.host,
+    port:        new_resource.port,
+    credentials:        new_resource.credentials,
+    add_org_entries:    new_resource.add_org_entries,
+    add_sample_entries: new_resource.add_sample_entries,
+    preseed_ldif:       new_resource.preseed_ldif,
+    conf_dir:           new_resource.conf_dir,
+    base_dir:           new_resource.base_dir
+  }
 
-  unless ( config['rootdn'] and config['password'] )
+  if config[:credentials].instance_of?(String) and config[:credentials].length > 0
 
-    # If userdn and pass were not specified, fall back onto the
-    # credentials provided by the directory_manager item in the dirsrv databag
+    # Pull named credentials from the dirsrv databag
 
     require 'chef/data_bag_item'
     require 'chef/encrypted_data_bag_item'
 
-    secret = Chef::EncryptedDataBagItem.load_secret(Chef::Config[:encrypted_data_bag_secret])
-    credentials = Chef::EncryptedDataBagItem.load( 'dirsrv', 'directory_manager', secret )
-    config['rootdn'] = credentials['rootdn']
-    config['password'] = credentials['password']
+    secret = Chef::EncryptedDataBagItem.load_secret
+    config[:credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', config[:credentials], secret ).to_hash
   end
 
-  if new_resource.admin_bindaddr and new_resource.is_admin
-    config['admin_host'] = new_resource.admin_bindaddr
+  unless config[:credentials].instance_of?(Hash) and config[:credentials].key?('userdn') and config[:credentials].key?('password')
+    raise "Invalid credentials: #{config[:credentials]}"
+  end
+
+  if new_resource.cfgdir_host or new_resource.has_cfgdir
+
+    # Same as above, in case this is a configuration directory server, or is configured to use one
+
+    if new_resource.cfgdir_credentials.instance_of?(String) and new_resource.cfgdir_credentials.length > 0
+
+      require 'chef/data_bag_item'
+      require 'chef/encrypted_data_bag_item'
+
+      secret = Chef::EncryptedDataBagItem.load_secret
+      config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', new_resource.cfgdir_credentials, secret ).to_hash
+    end
+
+    unless config[:cfgdir_credentials].instance_of?(Hash) and config[:cfgdir_credentials].key?('userdn') and config[:cfgdir_credentials].key?('password')
+      raise "Invalid credentials for config directory: #{new_resource.cfgdir_credentials}"
+    end
+
+    config[:has_cfgdir] = new_resource.has_cfgdir
+    config[:cfgdir_host] = new_resource.cfgdir_host
+    config[:cfgdir_port] = new_resource.cfgdir_port
+    config[:cfgdir_domain] = new_resource.cfgdir_domain
+
   end
 
   if ::Dir.exists?(instdir)
@@ -68,18 +79,16 @@ action :create do
         owner "root"
         group "root"
         cookbook "dirsrv"
-        variables config 
-        notifies :run, "execute[setup-#{new_resource.instance}]"
+        variables config
       end
 
       execute "setup-#{new_resource.instance}" do
         command "#{setup} --silent --file #{tmpl}"
         creates ::File.join instdir, 'dse.ldif'
         action :nothing
+        subscribes :run, "template[#{tmpl}]", :immediately
+        notifies :restart, "service[dirsrv-#{new_resource.instance}]", :immediately
       end
-
-      action_restart
-
     end
   end
 end
@@ -95,7 +104,7 @@ action :start do
       action :start
     end
 
-    if new_resource.is_admin
+    if new_resource.has_cfgdir
       service "dirsrv-admin" do
         action [ :enable, :start ]
       end
@@ -114,7 +123,7 @@ action :stop do
       action :stop
     end
 
-    if new_resource.is_admin
+    if new_resource.has_cfgdir
       service "dirsrv-admin" do
         action :stop
       end
@@ -133,7 +142,7 @@ action :restart do
       action :restart
     end
 
-    if new_resource.is_admin
+    if new_resource.has_cfgdir
       service "dirsrv-admin" do
         action :restart
       end

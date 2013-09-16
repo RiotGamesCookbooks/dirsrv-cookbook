@@ -18,8 +18,7 @@ action :enable do
       dn     'cn=config'
       host   new_resource.host
       port   new_resource.port
-      userdn new_resource.userdn
-      password new_resource.password
+      credentials new_resource.credentials
       attributes ({ new_resource.attr.to_sym => new_resource.value })
     end
   end
@@ -32,8 +31,7 @@ action :disable do
       dn     'cn=config'
       host   new_resource.host
       port   new_resource.port
-      userdn new_resource.userdn
-      password new_resource.password
+      credentials new_resource.credentials
       prune  new_resource.value ? { new_resource.attr.to_sym => new_resource.value } : [ new_resource.attr.to_sym ]
     end
   end

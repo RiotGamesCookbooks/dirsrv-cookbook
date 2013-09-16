@@ -1,22 +1,22 @@
 [General]
-FullMachineName         = <%= node[:fqdn] %>
+FullMachineName         = <%= @host %>
 SuiteSpotGroup          = dirsrv
 SuiteSpotUserID         = dirsrv
-<% if @admin_host -%>
-  <% if @admin_domain %>
-AdminDomain             = <%= @admin_domain %>
+<% if @cfgdir_host -%>
+  <% if @cfgdir_domain %>
+AdminDomain             = <%= @cfgdir_domain %>
   <% end -%>
-ConfigDirectoryAdminID  = <%= @admin_user %>
-ConfigDirectoryAdminPwd = <%= @admin_pass %>
-ConfigDirectoryLdapURL  = ldap://<%= @admin_host %>:<%= @admin_port %>/o=NetscapeRoot
+ConfigDirectoryAdminID  = <%= @cfgdir_credentials['userdn'] %>
+ConfigDirectoryAdminPwd = <%= @cfgdir_credentials['password'] %>
+ConfigDirectoryLdapURL  = ldap://<%= @cfgdir_host %>:<%= @cfgdir_port %>/o=NetscapeRoot
 <% end -%>
 
-<% if @admin_bindaddr -%>
+<% if @has_cfgdir -%>
 [admin]
-Port            = <%= @admin_port %>
-ServerAdminID   = <%= @admin_user %>
-ServerAdminPwd  = <%= @admin_pass %>
-ServerIpAddress = <%= @admin_bindaddr %>
+Port            = <%= @cfgdir_port %>
+ServerAdminID   = <%= @cfgdir_credentials['userdn'] %>
+ServerAdminPwd  = <%= @cfgdir_credentials['password'] %>
+ServerIpAddress = <%= @cfgdir_host %>
 SysUser         = dirsrv
 <% end -%>
 
@@ -24,8 +24,8 @@ SysUser         = dirsrv
 AddOrgEntries    = <%= @add_org_entries %>
 AddSampleEntries = <%= @add_sample_entries %>
 InstallLdifFile  = <%= @preseed_ldif %>
-RootDN           = <%= @rootdn %>
-RootDNPwd        = <%= @password %>
+RootDN           = <%= @credentials['userdn'] %>
+RootDNPwd        = <%= @credentials['password'] %>
 ServerIdentifier = <%= @instance %>
 ServerPort       = <%= @port %>
 Suffix           = <%= @suffix %>

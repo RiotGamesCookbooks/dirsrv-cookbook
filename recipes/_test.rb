@@ -10,21 +10,20 @@
 include_recipe "dirsrv"
 
 dirsrv_instance 'admin' do
-  is_admin     true
-  admin_domain "testdomain"
-  admin_user   "admin"
-  admin_pass   "password"
-  admin_port   9830
+  has_cfgdir    true
+  cfgdir_host   node[:ipaddress]
+  cfgdir_port   9830
+  cfgdir_domain "testdomain"
+  host         node[:fqdn]
   port         388
   suffix       'o=testorg'
   action       [ :create, :start ]
 end
 
 dirsrv_instance 'test' do
-  admin_user   "admin"
-  admin_pass   "password"
-  admin_port   9830
-  admin_host   node[:ipaddress]
+  cfgdir_host   node[:ipaddress]
+  cfgdir_port   9830
+  host         node[:fqdn]
   port         389
   suffix       'o=testorg'
   action       [ :create, :start ]
@@ -46,7 +45,7 @@ end
 
 dirsrv_plugin "MemberOf Plugin"
 
-dirsrv_plugin "Posix Winsync API"
+dirsrv_plugin "Posix Winsync API" do
   attributes ({ posixwinsynccreatememberoftask: 'true' })
 end
 

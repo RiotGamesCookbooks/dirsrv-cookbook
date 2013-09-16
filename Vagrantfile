@@ -24,6 +24,9 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :chef_solo do |chef|
 
+    chef.data_bags_path = "data_bags"
+    chef.encrypted_data_bag_secret_key_path = "encrypted_data_bag_secret"
+
     chef.json = {
       :dirsrv => {
         :do_tuning => true,

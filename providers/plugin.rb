@@ -18,8 +18,7 @@ action :enable do
     dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
-      userdn new_resource.userdn
-      password new_resource.password
+      credentials new_resource.credentials
       attributes new_resource.attributes.merge({ :'nsslapd-pluginEnabled' => 'on' })
       append_attributes new_resource.append_attributes
     end
@@ -32,8 +31,7 @@ action :modify do
     dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
-      userdn new_resource.userdn
-      password new_resource.password
+      credentials new_resource.credentials
       attributes new_resource.attributes
       append_attributes new_resource.append_attributes
     end
@@ -46,8 +44,7 @@ action :disable do
     dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
-      userdn new_resource.userdn
-      password new_resource.password
+      credentials new_resource.credentials
       attributes ({ :'nsslapd-pluginEnabled' => 'off' })
     end
   end
