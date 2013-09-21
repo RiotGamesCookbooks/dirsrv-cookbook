@@ -27,7 +27,7 @@ class Chef
         credentials = Chef::EncryptedDataBagItem.load( 'dirsrv', credentials, secret ).to_hash
       end
 
-      unless credentials.instance_of?(Hash) and credentials.key?('userdn') and credentials.key?('password')
+      unless credentials.kind_of?(Hash) and credentials.key?('userdn') and credentials.key?('password')
         raise "Invalid credentials: #{credentials}"
       end
 
@@ -42,7 +42,37 @@ class Chef
       raise "Unable to bind: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
       @ldap
     end
-  
+ 
+    def search ( r, basedn, *constraints )
+
+      self.bind( r.host, r.port, r.credentials ) unless @ldap
+
+      raise "Must specify base dn for search" unless basedn
+
+      ( filter, scope ) = constraints
+      filter = filter.nil? ? Net::LDAP::Filter.eq( 'objectClass', '*' ) : filter
+
+      case scope
+      when 'base'
+        scope = Net::LDAP::SearchScope_BaseObject
+      when 'one'
+        scope = Net::LDAP::SearchScope_SingleLevel
+      else
+        scope = Net::LDAP::SearchScope_WholeSubtree
+      end
+
+      scope = scope.nil? ? Net::LDAP::SearchScope_BaseObject : scope
+
+      entries = @ldap.search( 
+                  base:   basedn, 
+                  filter: filter,
+                  scope:  scope
+                )
+
+      raise "Error while searching: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
+      return entries
+    end
+ 
     def get_entry ( r )
  
       self.bind( r.host, r.port, r.credentials ) unless @ldap
@@ -79,7 +109,7 @@ class Chef
   
     def delete_entry ( r )
   
-      self.bind( r.host, r.port, r.credentialsi ) unless @ldap
+      self.bind( r.host, r.port, r.credentials ) unless @ldap
       @ldap.delete dn: r.dn
       raise "Unable to remove record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
     end
