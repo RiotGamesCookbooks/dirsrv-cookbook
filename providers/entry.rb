@@ -30,8 +30,9 @@ action :delete do
   @current_resource = load_current_resource
 
   if @current_resource
-    converge_by("Removing #{@new_resource.dn}") do
-      dirsrv.delete_entry(@new_resource)
+    converge_by("Removing #{@current_resource.dn}") do
+      dirsrv = Chef::Dirsrv.new
+      dirsrv.delete_entry(@current_resource)
     end
   end
 end
@@ -66,10 +67,10 @@ def modify_entry
 
     ( all_attributes.keys & @current_resource.attribute_names ).each do |attr|
 
-      # Ignore objectClass, Distinguished Name (DN), and the Relative DN. 
+      # Ignore Distinguished Name (DN) and the Relative DN. 
       # These should only be modified upon entry creation to avoid schema violations
       rdn = @new_resource.dn.split('=').first
-      next if attr =~ /(objectClass|DN)/i || attr <=> rdn 
+      next if attr =~ /DN/i || attr <=> rdn 
 
       if @new_resource.append_attributes[attr]
 
