@@ -2,21 +2,21 @@
 FullMachineName         = <%= @host %>
 SuiteSpotGroup          = dirsrv
 SuiteSpotUserID         = dirsrv
-<% if @cfgdir_host -%>
+<% if @has_cfgdir -%>
   <% if @cfgdir_domain %>
 AdminDomain             = <%= @cfgdir_domain %>
   <% end -%>
-ConfigDirectoryAdminID  = <%= @cfgdir_credentials['userdn'] %>
+ConfigDirectoryAdminID  = <%= @cfgdir_credentials['username'] %>
 ConfigDirectoryAdminPwd = <%= @cfgdir_credentials['password'] %>
-ConfigDirectoryLdapURL  = ldap://<%= @cfgdir_host %>:<%= @cfgdir_port %>/o=NetscapeRoot
+ConfigDirectoryLdapURL  = ldap://<%= @cfgdir_addr %>:<%= @cfgdir_ldap_port %>/o=NetscapeRoot
 <% end -%>
 
-<% if @has_cfgdir -%>
+<% if @is_cfgdir -%>
 [admin]
-Port            = <%= @cfgdir_port %>
-ServerAdminID   = <%= @cfgdir_credentials['userdn'] %>
+Port            = <%= @cfgdir_http_port %>
+ServerAdminID   = <%= @cfgdir_credentials['username'] %>
 ServerAdminPwd  = <%= @cfgdir_credentials['password'] %>
-ServerIpAddress = <%= @cfgdir_host %>
+ServerIpAddress = <%= @cfgdir_addr %>
 SysUser         = dirsrv
 <% end -%>
 

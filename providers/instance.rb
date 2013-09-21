@@ -30,7 +30,7 @@ action :create do
     base_dir:           new_resource.base_dir
   }
 
-  if config[:credentials].instance_of?(String) and config[:credentials].length > 0
+  if config[:credentials].kind_of?(String) and config[:credentials].length > 0
 
     # Pull named credentials from the dirsrv databag
 
@@ -41,15 +41,23 @@ action :create do
     config[:credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', config[:credentials], secret ).to_hash
   end
 
-  unless config[:credentials].instance_of?(Hash) and config[:credentials].key?('userdn') and config[:credentials].key?('password')
+  unless config[:credentials].kind_of?(Hash) and config[:credentials].key?('userdn') and config[:credentials].key?('password')
     raise "Invalid credentials: #{config[:credentials]}"
   end
 
-  if new_resource.cfgdir_host or new_resource.has_cfgdir
+  if new_resource.has_cfgdir or new_resource.is_cfgdir
 
     # Same as above, in case this is a configuration directory server, or is configured to use one
 
-    if new_resource.cfgdir_credentials.instance_of?(String) and new_resource.cfgdir_credentials.length > 0
+    config[:is_cfgdir] = new_resource.is_cfgdir
+    config[:has_cfgdir] = new_resource.has_cfgdir
+    config[:cfgdir_addr] = new_resource.cfgdir_addr
+    config[:cfgdir_http_port] = new_resource.cfgdir_http_port
+    config[:cfgdir_ldap_port] = new_resource.cfgdir_ldap_port
+    config[:cfgdir_domain] = new_resource.cfgdir_domain
+    config[:cfgdir_credentials] = new_resource.cfgdir_credentials
+
+    if new_resource.cfgdir_credentials.kind_of?(String) and new_resource.cfgdir_credentials.length > 0
 
       require 'chef/data_bag_item'
       require 'chef/encrypted_data_bag_item'
@@ -58,15 +66,9 @@ action :create do
       config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', new_resource.cfgdir_credentials, secret ).to_hash
     end
 
-    unless config[:cfgdir_credentials].instance_of?(Hash) and config[:cfgdir_credentials].key?('userdn') and config[:cfgdir_credentials].key?('password')
+    unless config[:cfgdir_credentials].kind_of?(Hash) and config[:cfgdir_credentials].key?('username') and config[:cfgdir_credentials].key?('password')
       raise "Invalid credentials for config directory: #{new_resource.cfgdir_credentials}"
     end
-
-    config[:has_cfgdir] = new_resource.has_cfgdir
-    config[:cfgdir_host] = new_resource.cfgdir_host
-    config[:cfgdir_port] = new_resource.cfgdir_port
-    config[:cfgdir_domain] = new_resource.cfgdir_domain
-
   end
 
   if ::Dir.exists?(instdir)
@@ -104,7 +106,7 @@ action :start do
       action :start
     end
 
-    if new_resource.has_cfgdir
+    if new_resource.is_cfgdir
       service "dirsrv-admin" do
         action [ :enable, :start ]
       end
@@ -123,7 +125,7 @@ action :stop do
       action :stop
     end
 
-    if new_resource.has_cfgdir
+    if new_resource.is_cfgdir
       service "dirsrv-admin" do
         action :stop
       end
@@ -142,7 +144,7 @@ action :restart do
       action :restart
     end
 
-    if new_resource.has_cfgdir
+    if new_resource.is_cfgdir
       service "dirsrv-admin" do
         action :restart
       end
