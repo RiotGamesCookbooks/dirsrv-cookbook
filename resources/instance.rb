@@ -25,5 +25,5 @@ attribute :has_cfgdir, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :add_org_entries, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :add_sample_entries, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :preseed_ldif, :kind_of => String
-attribute :conf_dir, :kind_of => String, :default => node[:dirsrv][:conf_dir]
-attribute :base_dir, :kind_of => String, :default => node[:dirsrv][:base_dir]
+attribute :conf_dir, :kind_of => String, :default => '/etc/dirsrv'
+attribute :base_dir, :kind_of => String, :default => '/var/lib/dirsrv'
