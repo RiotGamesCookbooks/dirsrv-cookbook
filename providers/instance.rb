@@ -14,15 +14,17 @@ end
 action :create do
 
   tmpl = ::File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
-  setup = new_resource.has_cfgdir ? 'setup-ds-admin.pl' : 'setup-ds.pl'
+  setup = new_resource.is_cfgdir ? 'setup-ds-admin.pl' : 'setup-ds.pl'
   instdir = ::File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
+  mgrcreds = new_resource.credentials.kind_of?(Hash) ? new_resource.credentials.to_hash : new_resource.credentials
+  admcreds = new_resource.cfgdir_credentials.kind_of?(Hash) ? new_resource.cfgdir_credentials.to_hash : new_resource.cfgdir_credentials
 
   config = {
     instance:    new_resource.instance,
     suffix:      new_resource.suffix,
     host:        new_resource.host,
     port:        new_resource.port,
-    credentials:        new_resource.credentials,
+    credentials:        mgrcreds,
     add_org_entries:    new_resource.add_org_entries,
     add_sample_entries: new_resource.add_sample_entries,
     preseed_ldif:       new_resource.preseed_ldif,
@@ -55,7 +57,7 @@ action :create do
     config[:cfgdir_http_port] = new_resource.cfgdir_http_port
     config[:cfgdir_ldap_port] = new_resource.cfgdir_ldap_port
     config[:cfgdir_domain] = new_resource.cfgdir_domain
-    config[:cfgdir_credentials] = new_resource.cfgdir_credentials
+    config[:cfgdir_credentials] = admcreds
 
     if new_resource.cfgdir_credentials.kind_of?(String) and new_resource.cfgdir_credentials.length > 0
 
@@ -63,7 +65,7 @@ action :create do
       require 'chef/encrypted_data_bag_item'
 
       secret = Chef::EncryptedDataBagItem.load_secret
-      config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', new_resource.cfgdir_credentials, secret ).to_hash
+      config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', config[:cfgdir_credentials], secret ).to_hash
     end
 
     unless config[:cfgdir_credentials].kind_of?(Hash) and config[:cfgdir_credentials].key?('username') and config[:cfgdir_credentials].key?('password')

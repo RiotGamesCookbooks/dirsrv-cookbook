@@ -16,6 +16,8 @@ class Chef
   
     def bind ( host, port, credentials )
 
+      credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials
+
       if credentials.instance_of?(String) and credentials.length > 0
 
         # Pull named credentials from the dirsrv databag
