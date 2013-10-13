@@ -16,8 +16,8 @@ action :create do
   tmpl = ::File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
   setup = new_resource.is_cfgdir ? 'setup-ds-admin.pl' : 'setup-ds.pl'
   instdir = ::File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
-  mgrcreds = new_resource.credentials.kind_of?(Hash) ? new_resource.credentials.to_hash : new_resource.credentials
-  admcreds = new_resource.cfgdir_credentials.kind_of?(Hash) ? new_resource.cfgdir_credentials.to_hash : new_resource.cfgdir_credentials
+  mgrcreds = new_resource.credentials.kind_of?(Hash) ? new_resource.credentials.to_hash : new_resource.credentials.to_s
+  admcreds = new_resource.cfgdir_credentials.kind_of?(Hash) ? new_resource.cfgdir_credentials.to_hash : new_resource.cfgdir_credentials.to_s
 
   config = {
     instance:    new_resource.instance,

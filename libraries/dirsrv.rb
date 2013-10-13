@@ -16,7 +16,7 @@ class Chef
   
     def bind ( host, port, credentials )
 
-      credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials
+      credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials.to_s
 
       if credentials.instance_of?(String) and credentials.length > 0
 
@@ -68,7 +68,8 @@ class Chef
       entries = @ldap.search( 
                   base:   basedn, 
                   filter: filter,
-                  scope:  scope
+                  scope:  scope,
+                  attributes: [ '*' ]
                 )
 
       raise "Error while searching: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
@@ -82,7 +83,8 @@ class Chef
       entry = @ldap.search( 
                 base:   r.dn, 
                 filter: Net::LDAP::Filter.eq( 'objectClass', '*' ),
-                scope:  Net::LDAP::SearchScope_BaseObject
+                scope:  Net::LDAP::SearchScope_BaseObject,
+                attributes: [ '*' ]
               )
   
       raise "Error while searching: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
@@ -106,7 +108,7 @@ class Chef
       entry = self.get_entry( r )
 
       @ldap.modify dn: r.dn, operations: ops
-      raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Attribute)/
+      raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|Attribute or Value Exists)/
     end
   
     def delete_entry ( r )

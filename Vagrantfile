@@ -29,13 +29,21 @@ Vagrant.configure("2") do |config|
 
     chef.json = {
       :dirsrv => {
+        :credentials => {
+          "userdn" => 'cn=Directory Manager',
+          "password" => 'Vagrant!'
+        },
+        :cfgdir_credentials => {
+          "username" => 'manager',
+          "password" => 'Vagrant!'
+        },
         :do_tuning => true,
         :use_epel  => true
       }
     }
 
     chef.run_list = [
-      "recipe[dirsrv::_test]"
+      "recipe[dirsrv::_vagrant_node_one]"
     ]
   end
 end

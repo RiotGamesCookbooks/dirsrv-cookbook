@@ -19,7 +19,7 @@ action :enable do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
-      attributes ({ new_resource.attr.to_sym => new_resource.value })
+      attributes ({ new_resource.attr.to_sym => new_resource.value.to_s })
     end
   end
 end
@@ -32,7 +32,7 @@ action :disable do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
-      prune  new_resource.value ? { new_resource.attr.to_sym => new_resource.value } : [ new_resource.attr.to_sym ]
+      prune  new_resource.value ? { new_resource.attr.to_sym => new_resource.value.to_s } : [ new_resource.attr.to_sym ]
     end
   end
 end
