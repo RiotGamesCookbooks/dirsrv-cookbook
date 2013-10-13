@@ -98,7 +98,8 @@ class Chef
       relativedn = r.dn.split(',').first
       # Cast as a case insensitive, case preserving hash
       attrs = CICPHash.new.merge!(r.attributes)
-      attrs.merge(Hash[*relativedn.split('=').flatten])
+      attrs.merge!(r.seed_attributes)
+      attrs.merge!(Hash[*relativedn.split('=').flatten])
       @ldap.add dn: r.dn, attributes: attrs
       raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
     end

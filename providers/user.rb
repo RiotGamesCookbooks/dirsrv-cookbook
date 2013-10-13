@@ -35,7 +35,7 @@ action :create do
       require 'digest'
       require 'base64'
       salt = ( rand * 10 ** 5 ).to_s
-      attrs[:userPassword] = '{SSHA}' + Base64.encode64(Digest::SHA1.digest( new_resource.password + salt ) + salt ).chomp!
+      new_resource.password('{SSHA}' + Base64.encode64(Digest::SHA1.digest( new_resource.password + salt ) + salt ).chomp)
     end
 
     if new_resource.is_posix
@@ -73,6 +73,9 @@ action :create do
       port   new_resource.port
       credentials new_resource.credentials
       attributes ({ objectClass: objclass }.merge(attrs))
+      if new_resource.password
+        seed_attributes ({ userPassword: new_resource.password })
+      end
     end
   end
 end

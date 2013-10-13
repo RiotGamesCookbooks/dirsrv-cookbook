@@ -55,6 +55,12 @@ def modify_entry
     new_resource.updated_by_last_action(true)
   else
 
+    # Include seed attributes in with the normal attributes as long as they don't already exist
+    @new_resource.seed_attributes.keys.each{ |k| @new_resource.seed_attributes[k.downcase] = @new_resource.seed_attributes.delete(k) }
+    ( @new_resource.seed_attributes.keys - @current_resource.attribute_names ).map{ |attr|
+      @new_resource.attributes.merge!({ attr => @new_resource.seed_attributes[attr].is_a?(String) ? [ @new_resource.seed_attributes[attr] ] : @new_resource.seed_attributes[attr] })
+    }
+
     all_attributes = @new_resource.attributes.merge(@new_resource.append_attributes)
 
     # Add keys that are missing
