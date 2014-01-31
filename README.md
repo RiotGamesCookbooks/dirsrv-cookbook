@@ -37,14 +37,12 @@ default[:sysctl][:params][:net][:ipv4][:ip_local_port_range] = '1024 65000'
     This is the name of the root of the instance's LDAP heirarchy, which is suffixed to the name of each object within the instance.
 
   * credentials
-    This can either be a Hash object with the following structure:
+    This can either be a Hash object with the keys defined below, or a String. If this specified a String, it should contain the name of a databag item within the 'dirsrv' databag that contains a Hash object as specified above. This attribute defaults to the string 'default'. If you create a databag named 'dirsrv' and put a databag item in it named 'default' with these two keys, then it will be used by default and you will not need to specify this option.
 
 key      | value
 ---------|-------
 userdn   | The bind DN used to initialize the instance and create the initial set of LDAP entries. This should be an administrative DN, such as 'cn=Directory Manager'
 password | The password, in plain text
-
-    Also this could be a String that contains the name of a databag item within the 'dirsrv' databag that contains a Hash object as specified above. This attribute defaults to the string 'default'. If you create a databag named 'dirsrv' and put a databag item in it named 'default' with these two keys, then it will be used by default and you will not need to specify this option.
 
   * host
     The hostname that should be used to create the instance. By default this is set to node[:fqdn], which is defined by `hostname -f`. You may want to specify it if your host is known by multiple names.
@@ -71,15 +69,13 @@ password | The password, in plain text
     The name of the configuration directory domain. 389DS instances that *are* or *use* a configuration directory instance must supply this. The mechanism can be used to allow multiple groups of administrators access to manage specific sets of instances.
 
   * cfgdir_credentials
-    In the same style as the 'credentials' attribute above, this defines either a String or a Hash that contains the keys below:
+    In the same style as the 'credentials' attribute above, this defines either a String or a Hash using the keys found below. The default value is 'default'. If this option is used, you will probably want to redefine it so as to be different from the 'credentials' attribute above. Alternatively, yo
+u could have the dirsrv->default databag item include all three keys: user, userdn, and password.
 
 key      | value
 ---------|-------
 user     | The username used to administer the configuration directory. Note that this is a free form string, *not* a DN.
 password | The password, in plain text
-
-    The default value is 'default'. If this option is used, you will probably want to redefine it so as to be different from the 'credentials' attribute above. Alternatively, yo
-u could have the dirsrv->default databag item include all three keys: user, userdn, and password.
 
   * cfgdir_addr
     The ip address that this service should listen on. Defaults to node[:ipaddress]
