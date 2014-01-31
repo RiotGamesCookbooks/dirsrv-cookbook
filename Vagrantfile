@@ -37,8 +37,8 @@ Vagrant.configure("2") do |config|
           "username" => 'manager',
           "password" => 'Vagrant!'
         },
-        :do_tuning => true,
-        :use_epel  => true
+        :use_sysctl   => true,
+        :use_yum_epel => true
       }
     }
 

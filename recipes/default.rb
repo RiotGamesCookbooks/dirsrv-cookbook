@@ -7,11 +7,11 @@
 # All rights reserved - Do Not Redistribute
 #
 
-if node[:dirsrv][:use_epel]
+if node[:dirsrv][:use_yum_epel]
   include_recipe "yum::epel"
 end
 
-if node[:dirsrv][:do_tuning]
+if node[:dirsrv][:use_sysctl]
   include_recipe "sysctl"
 end
 
