@@ -19,16 +19,21 @@ default[:dirsrv][:packages] = %w{389-ds}
 
 ### Sysctl cookbook
 
-default[:dirsrv][:use_sysctl] = false
-default[:sysctl][:params][:fs][:file_max] = 64000
-default[:sysctl][:params][:net][:ipv4][:tcp_keepalive_time] = 30
-default[:sysctl][:params][:net][:ipv4][:ip_local_port_range] = '1024 65000'
+The sysctl cookbook can be used to configure some recommended values for 389DS. If you set :use_sysctl to true then the 
+
+  default[:dirsrv][:use_sysctl] = false
+
+  default[:sysctl][:params][:fs][:file_max] = 64000
+
+  default[:sysctl][:params][:net][:ipv4][:tcp_keepalive_time] = 30
+
+  default[:sysctl][:params][:net][:ipv4][:ip_local_port_range] = '1024 65000'
 
 ## Resources
 
 * dirsrv_instance
 
-  Configures a 389 Directory Server instance. See http://www.centos.org/docs/5/html/CDS/install/8.0/Installation_Guide-Preparing_for_a_Directory_Server_Installation-Installation_Overview.html for more details.
+  Configures a 389 Directory Server instance. See [this installation guide](http://www.centos.org/docs/5/html/CDS/install/8.0/Installation_Guide-Preparing_for_a_Directory_Server_Installation-Installation_Overview.html) for more details.
 
   * instance
     The name for the instance. This must be unique to the system. An example of a good instance name might be '$HOSTNAME_$PORT'. You can have multiple instances running on the same system, and this cookbook supports this behavior. See Testing for examples.
@@ -69,8 +74,7 @@ password | The password, in plain text
     The name of the configuration directory domain. 389DS instances that *are* or *use* a configuration directory instance must supply this. The mechanism can be used to allow multiple groups of administrators access to manage specific sets of instances.
 
   * cfgdir_credentials
-    In the same style as the 'credentials' attribute above, this defines either a String or a Hash using the keys found below. The default value is 'default'. If this option is used, you will probably want to redefine it so as to be different from the 'credentials' attribute above. Alternatively, yo
-u could have the dirsrv->default databag item include all three keys: user, userdn, and password.
+    In the same style as the 'credentials' attribute above, this defines either a String or a Hash using the keys found below. The default value is 'default'. If this option is used, you will probably want to redefine it so as to be different from the 'credentials' attribute above. Alternatively, you could have the dirsrv->default databag item include all three keys: user, userdn, and password.
 
 key      | value
 ---------|-------
@@ -93,14 +97,33 @@ password | The password, in plain text
     This should be set to true if the instance should be connected to and use an administrative configuration directory service. Multple instances can be connected to the same cfgdir_domain. Default: false
 
 * dirsrv_entry
+
+  This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library to write entries entirely from scratch in Chef and can be used with any LDAP directory service, not just 389DS. The resources that follow this one *are* specific to the 389DS server and they depend upon dirsrv_entry under the hood.
+
   * dn
+    The Distinguished Name (DN) of the entry
+
   * attributes
+    A Hash of attributes whose values are to be set upon the LDAP entry. If an entry has an existing attribute of the same name as one specified here, the contents will be overwritten by the values in this hash.
+
   * append_attributes
+    A Hash of attributes whose values are to be appended to an existing attribute, if any. This is useful to ensure that the supplied values exist without clobbering existing values that were not specified.
+
   * seed_attributes
+    A Hash of attributes whose values are used to initialize the attribute, and are to be ignored if the attribute exists. This is useful for setting values that should change over time outside of Chef's control. Examples: user passwords, serial number for a DNS domain.
+
   * prune
+    This can either be an Array of attributes that should be removed entirely, or a Hash of attributes with specific values that should be removed.
+
   * host
+    The LDAP host to connect to. Default: localhost
+
   * port
+    The LDAP port to connect to. Default: 389
+
   * credentials
+    A Hash or String used to specify which credentials will be used to manage the LDAP entry. See dirsrv_instance.
+
 
 * dirsrv_config
   * attr
