@@ -11,7 +11,7 @@ actions :create
 default_action :create
 
 attribute :name, :kind_of => String, :name_attribute => true
-attribute :instance, :kind_of => String, :default => 'userRoot'
+attribute :database, :kind_of => String, :default => 'userRoot'
 attribute :equality, :kind_of => [ TrueClass, FalseClass ], :default => true
 attribute :presence, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :substring, :kind_of => [ TrueClass, FalseClass ], :default => false

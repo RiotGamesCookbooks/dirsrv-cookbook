@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+Vagrant.require_plugin "vagrant-berkshelf"
+Vagrant.require_plugin "vagrant-omnibus"
+
 Vagrant.configure("2") do |config|
   config.vm.hostname = "dirsrv"
 
@@ -19,8 +22,8 @@ Vagrant.configure("2") do |config|
     ]
   end
 
-  config.ssh.max_tries = 40
-  config.ssh.timeout   = 120
+#  config.ssh.max_tries = 40
+#  config.ssh.timeout   = 120
 
   config.vm.provision :chef_solo do |chef|
 
@@ -37,7 +40,6 @@ Vagrant.configure("2") do |config|
           "username" => 'manager',
           "password" => 'Vagrant!'
         },
-        :use_sysctl   => true,
         :use_yum_epel => true
       }
     }

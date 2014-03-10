@@ -11,10 +11,6 @@ if node[:dirsrv][:use_yum_epel]
   include_recipe "yum::epel"
 end
 
-if node[:dirsrv][:use_sysctl]
-  include_recipe "sysctl"
-end
-
 node[:dirsrv][:packages].each do |pkg|
   package pkg
 end

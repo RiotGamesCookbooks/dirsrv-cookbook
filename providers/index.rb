@@ -18,7 +18,7 @@ action :create do
   attrs.push('pres') if new_resource.presence
   attrs.push('sub') if new_resource.substring
 
-  # Index is per database instance backend
+  # Index is per database backend
   idxattrs = {
       objectClass: [ 'top', 'nsIndex' ],
       cn: new_resource.name,
@@ -30,13 +30,13 @@ action :create do
   taskattrs = { 
     objectClass: [ 'top', 'extensibleObject' ],
     cn: new_resource.name,
-    nsInstance: new_resource.instance,
+    nsInstance: new_resource.database,
     nsIndexAttribute: new_resource.name + ':' + attrs.join(',') 
   }
 
   converge_by("Creating index for #{new_resource.name} attribute") do
 
-    dirsrv_entry "cn=#{new_resource.name},cn=index,cn=#{new_resource.instance},cn=ldbm database,cn=plugins,cn=config" do
+    dirsrv_entry "cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -49,7 +49,7 @@ action :create do
       credentials new_resource.credentials
       attributes taskattrs
       action :nothing
-      subscribes :create, "dirsrv_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.instance},cn=ldbm database,cn=plugins,cn=config]", :immediately
+      subscribes :create, "dirsrv_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config]", :immediately
     end
   end
 end
