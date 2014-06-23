@@ -7,7 +7,6 @@ Vagrant.configure("2") do |config|
   config.vm.box = "vagrant-centos-65-x86_64-minimal"
   config.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
   config.vm.network :private_network, ip: "29.29.29.10"
-  config.berkshelf.enabled = true
 
   config.vm.provider :virtualbox do |vb|
     vb.customize [
