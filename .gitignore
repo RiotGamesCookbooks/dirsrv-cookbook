@@ -3,3 +3,4 @@
 VERSION
 Berksfile.lock
 Gemfile.lock
+vagrant-cookbooks

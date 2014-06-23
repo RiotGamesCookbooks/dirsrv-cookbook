@@ -1,14 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-Vagrant.require_plugin "vagrant-berkshelf"
-Vagrant.require_plugin "vagrant-omnibus"
-
 Vagrant.configure("2") do |config|
   config.vm.hostname = "dirsrv"
 
-  config.vm.box = "CentOS-6.4-x86_64-v20130309.box"
-  config.vm.box_url = "http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130309.box"
+  config.vm.box = "vagrant-centos-65-x86_64-minimal"
+  config.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
   config.vm.network :private_network, ip: "29.29.29.10"
   config.berkshelf.enabled = true
 
@@ -22,12 +19,10 @@ Vagrant.configure("2") do |config|
     ]
   end
 
-#  config.ssh.max_tries = 40
-#  config.ssh.timeout   = 120
-
   config.vm.provision :chef_solo do |chef|
 
     chef.data_bags_path = "data_bags"
+    chef.cookbooks_path = "vagrant-cookbooks"
     chef.encrypted_data_bag_secret_key_path = "encrypted_data_bag_secret"
 
     chef.json = {
