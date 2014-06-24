@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
 
     chef.data_bags_path = "data_bags"
     chef.cookbooks_path = "vagrant-cookbooks"
-    chef.encrypted_data_bag_secret_key_path = "encrypted_data_bag_secret"
+    chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
 
     chef.json = {
       :dirsrv => {
