@@ -32,12 +32,9 @@ dirsrv_config "nsslapd-auditlog-logrotationsync-enabled" do
   value  'on'
 end
 
-dirsrv_user "Replication Manager" do
+dirsrv_config "nsslapd-errorlog-level" do
   credentials  node[:dirsrv][:credentials]
-  basedn 'cn=config'
-  relativedn_attribute 'cn'
-  password 'CopyCat!'
-  is_posix false
+  value  '8192'
 end
 
 dirsrv_entry 'ou=testentry,o=vagrant' do
@@ -62,39 +59,35 @@ dirsrv_plugin "referential integrity postoperation" do
   action     :modify
 end
 
-# Second instance, same node
+### Replication ###
 
-dirsrv_instance node[:hostname] + '_388' do
-  has_cfgdir    true
-  cfgdir_addr   node[:ipaddress]
-  cfgdir_domain "vagrant"
-  cfgdir_ldap_port 389
-  credentials  node[:dirsrv][:credentials]
-  cfgdir_credentials  node[:dirsrv][:cfgdir_credentials]
-  host         node[:fqdn]
-  port         388
-  suffix       'o=vagrant'
-  action       [ :create, :start ]
-end
-
-dirsrv_config "nsslapd-auditlog-logging-enabled" do
-  credentials  node[:dirsrv][:credentials]
-  port         388
-  value  'on'
-end
-
-dirsrv_config "nsslapd-auditlog-logrotationsync-enabled" do
-  credentials  node[:dirsrv][:credentials]
-  port         388
-  value  'on'
-end
+# cn=Replication Manager,cn=config
 
 dirsrv_user "Replication Manager" do
   credentials  node[:dirsrv][:credentials]
-  port         388
   basedn 'cn=config'
   relativedn_attribute 'cn'
   password 'CopyCat!'
   is_posix false
 end
 
+# o=vagrant replica
+
+dirsrv_replica 'o=vagrant' do
+  credentials  node[:dirsrv][:credentials]
+  instance     node[:hostname] + '_389'
+  role         :multi_master
+end
+
+# admin server replica
+
+dirsrv_plugin "Pass Through Authentication" do
+  credentials  node[:dirsrv][:credentials]
+  action :disable
+end
+
+dirsrv_replica 'o=NetscapeRoot' do
+  credentials  node[:dirsrv][:credentials]
+  instance     node[:hostname] + '_389'
+  role         :multi_master
+end
