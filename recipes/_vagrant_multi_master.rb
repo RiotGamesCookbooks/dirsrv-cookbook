@@ -12,7 +12,7 @@ include_recipe "dirsrv"
 dirsrv_instance node[:hostname] + '_389' do
   is_cfgdir     true
   has_cfgdir    true
-  cfgdir_addr   node[:ipaddress]
+  cfgdir_addr   node[:vagrant][:ipaddress]
   cfgdir_domain "vagrant"
   cfgdir_ldap_port 389
   credentials  node[:dirsrv][:credentials]
@@ -32,6 +32,7 @@ dirsrv_config "nsslapd-auditlog-logrotationsync-enabled" do
   value  'on'
 end
 
+# Replication Debug
 dirsrv_config "nsslapd-errorlog-level" do
   credentials  node[:dirsrv][:credentials]
   value  '8192'
@@ -74,20 +75,17 @@ end
 # o=vagrant replica
 
 dirsrv_replica 'o=vagrant' do
-  credentials  node[:dirsrv][:credentials]
+  credentials  node[:dirsrv][:cfgdir_credentials]
   instance     node[:hostname] + '_389'
+  id           node[:vagrant][:replicaid]
   role         :multi_master
 end
 
 # admin server replica
 
-dirsrv_plugin "Pass Through Authentication" do
-  credentials  node[:dirsrv][:credentials]
-  action :disable
-end
-
 dirsrv_replica 'o=NetscapeRoot' do
-  credentials  node[:dirsrv][:credentials]
+  credentials  node[:dirsrv][:cfgdir_credentials]
   instance     node[:hostname] + '_389'
+  id           node[:vagrant][:replicaid]
   role         :multi_master
 end

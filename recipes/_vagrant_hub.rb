@@ -71,4 +71,5 @@ dirsrv_replica 'o=vagrant' do
   credentials  node[:dirsrv][:credentials]
   instance     node[:hostname] + '_389'
   role         :hub
+  id           3
 end
