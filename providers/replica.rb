@@ -28,7 +28,7 @@ action :create do
   # Generate a replica id by bit shifting the fourth octet rightward 8 bits, and adding the second octet
   second = node[:ipaddress].split('.').slice(1).to_i
   fourth = node[:ipaddress].split('.').slice(3).to_i
-  replid = (( fourth << 8 ) + second ).to_s
+  replid = new_resource.id.nil? ? (( fourth << 8 ) + second ).to_s : new_resource.id.to_s
 
   case new_resource.role
   when :single_master, :multi_master
@@ -56,6 +56,16 @@ action :create do
       port   new_resource.port
       credentials new_resource.credentials
       action :disable
+    end
+
+    netscaperoot = Regexp.new('o=NetscapeRoot$', Regexp::IGNORECASE)
+    if netscaperoot.match(new_resource.suffix)
+      dirsrv_plugin "Pass Through Authentication" do
+        host   new_resource.host
+        port   new_resource.port
+        credentials new_resource.credentials
+        action :disable
+      end
     end
 
     unless new_resource.role == :consumer
