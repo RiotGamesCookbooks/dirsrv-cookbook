@@ -17,7 +17,7 @@ action :create do
 
   # LDAP instances are not case sensitive
   @new_resource.attributes.keys.each do |k|
-    @new_resource.attributes[k.downcase] = @new_resource.attributes.delete(k)
+    @new_resource.attributes[k.downcase.to_s] = @new_resource.attributes.delete(k)
   end
 
   converge_by("Entry #{@new_resource.dn}") do
@@ -41,7 +41,6 @@ def load_current_resource
 
   dirsrv = Chef::Dirsrv.new
   @current_resource = dirsrv.get_entry(@new_resource)
-  @current_resource.attribute_names.map!{ |k| k.downcase } if @current_resource
   @current_resource
 end
 
@@ -55,23 +54,25 @@ def modify_entry
     new_resource.updated_by_last_action(true)
   else
 
+    current_attribute_names = @current_resource.attribute_names.map{ |k| k.downcase.to_s }
+
     # Include seed attributes in with the normal attributes as long as they don't already exist
-    @new_resource.seed_attributes.keys.each{ |k| @new_resource.seed_attributes[k.downcase] = @new_resource.seed_attributes.delete(k) }
-    ( @new_resource.seed_attributes.keys - @current_resource.attribute_names ).map{ |attr|
+    @new_resource.seed_attributes.keys.each{ |k| @new_resource.seed_attributes[k.downcase.to_s] = @new_resource.seed_attributes.delete(k) }
+    ( @new_resource.seed_attributes.keys - current_attribute_names ).map{ |attr|
       @new_resource.attributes.merge!({ attr => @new_resource.seed_attributes[attr].is_a?(String) ? [ @new_resource.seed_attributes[attr] ] : @new_resource.seed_attributes[attr] })
     }
 
     all_attributes = @new_resource.attributes.merge(@new_resource.append_attributes)
 
     # Add keys that are missing
-    add_keys = ( all_attributes.keys - @current_resource.attribute_names ).map{ |attr|
+    add_keys = ( all_attributes.keys - current_attribute_names ).map{ |attr|
       [ :add, attr, all_attributes[attr].is_a?(String) ? [ all_attributes[attr] ] : all_attributes[attr] ]
     }
 
     # Update existing keys, append values if necessary
     update_keys = Array.new
 
-    ( all_attributes.keys & @current_resource.attribute_names ).each do |attr|
+    ( all_attributes.keys & current_attribute_names ).each do |attr|
 
       # Ignore Distinguished Name (DN) and the Relative DN. 
       # These should only be modified upon entry creation to avoid schema violations
