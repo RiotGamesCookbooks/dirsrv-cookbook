@@ -5,16 +5,11 @@ unless Vagrant.has_plugin?("vagrant-omnibus")
   raise 'Omnibus plugin is required: vagrant plugin install vagrant-omnibus'
 end
 
-unless Vagrant.has_plugin?("vagrant-ohai")
- raise 'Ohai plugin is required: vagrant plugin install vagrant-ohai'
-end
-
 Vagrant.configure("2") do |config|
 
   config.omnibus.chef_version = :latest
   config.vm.box = "vagrant-centos-65-x86_64-minimal"
   config.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
-  config.ohai.primary_nic = 'eth1'
 
   # Primary Master
   config.vm.define "primary" do |primary|
@@ -25,8 +20,8 @@ Vagrant.configure("2") do |config|
     primary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1024",
-        "--cpus", "1", 
+        "--memory", "2048",
+        "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
       ]
@@ -46,9 +41,14 @@ Vagrant.configure("2") do |config|
           },
           :cfgdir_credentials => {
             "username" => 'manager',
+            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
           },
           :use_yum_epel => true
+        },
+        :vagrant => {
+          :ipaddress => '29.29.29.10',
+          :replicaid => 1
         }
       }
 
@@ -67,8 +67,8 @@ Vagrant.configure("2") do |config|
     secondary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1024",
-        "--cpus", "1", 
+        "--memory", "2048",
+        "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
       ]
@@ -88,9 +88,14 @@ Vagrant.configure("2") do |config|
           },
           :cfgdir_credentials => {
             "username" => 'manager',
+            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
           },
           :use_yum_epel => true
+        },
+        :vagrant => {
+          :ipaddress => '29.29.29.11',
+          :replicaid => 2
         }
       }
 
@@ -109,7 +114,7 @@ Vagrant.configure("2") do |config|
     hub.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1024",
+        "--memory", "1536",
         "--cpus", "1", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -151,7 +156,7 @@ Vagrant.configure("2") do |config|
     consumer.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1024",
+        "--memory", "1536",
         "--cpus", "1", 
         "--chipset", "ich9",
         "--vram", "10"
