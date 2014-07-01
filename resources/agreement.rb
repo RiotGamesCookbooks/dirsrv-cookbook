@@ -10,14 +10,16 @@
 actions :create, :start, :initialize
 default_action :create
 
-attribute :description, :kind_of => String, :name_attribute => true
+attribute :label, :kind_of => String, :name_attribute => true
+attribute :description, :kind_of => String, :required => true
 attribute :suffix, :kind_of => String, :required => true
+attribute :type, :kind_of => [ :AD, :DS ], :default => :DS
 attribute :replica_host, :kind_of => String, :required => true
 attribute :replica_port, :kind_of => Integer, :default => 389
 attribute :replica_binddn, :kind_of => String, :default => 'cn=Replication Manager,cn=config'
 attribute :replica_bind_method, :kind_of => String, :default => 'SIMPLE'
 attribute :replica_credentials, :kind_of => String
-attribute :update_schedule, :kind_of => String, :default => 'SIMPLE'
+attribute :replica_update_schedule, :kind_of => String, :default => '0000 2359 0123456'
 attribute :replicated_attribute_list, :kind_of => String, :default => '(objectclass=*) $ EXCLUDE authorityRevocationList accountUnlockTime memberof'
 attribute :replicated_attribute_list_total, :kind_of => String, :default => '(objectclass=*) $ EXCLUDE accountUnlockTime'
 attribute :host, :kind_of => String, :default => 'localhost'
