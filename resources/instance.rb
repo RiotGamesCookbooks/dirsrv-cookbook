@@ -2,9 +2,9 @@
 # Cookbook Name:: dirsrv
 # Resource:: instance
 #
-# Copyright 2013, Alan Willis <alan@amekoshi.com>
+# Copyright 2013, Alan Willis <alwillis@riotgames.com>
 #
-# All rights reserved - Do Not Redistribute
+# All rights reserved
 #
 
 actions :create, :start, :stop, :restart
@@ -20,6 +20,7 @@ attribute :cfgdir_credentials, :kind_of => [ String, Hash ], :default => 'defaul
 attribute :cfgdir_addr, :kind_of => String, :default => node[:ipaddress]
 attribute :cfgdir_http_port, :kind_of => Integer, :default => 9830
 attribute :cfgdir_ldap_port, :kind_of => Integer, :default => 389
+attribute :cfgdir_service_start, :kind_of => [ TrueClass, FalseClass ], :default => true
 attribute :is_cfgdir, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :has_cfgdir, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :add_org_entries, :kind_of => [ TrueClass, FalseClass ], :default => false

@@ -2,9 +2,9 @@
 # Cookbook Name:: dirsrv
 # Provider:: instance
 #
-# Copyright 2013, Alan Willis <alan@amekoshi.com>
+# Copyright 2013, Alan Willis <alwillis@riotgames.com>
 #
-# All rights reserved - Do Not Redistribute
+# All rights reserved
 #
 
 def whyrun_supported?
@@ -110,7 +110,11 @@ action :start do
 
     if new_resource.is_cfgdir
       service "dirsrv-admin" do
-        action [ :enable, :start ]
+        if new_resource.cfgdir_service_start
+          action [ :enable, :start ]
+        else
+          action :enable
+        end
       end
     end
   end

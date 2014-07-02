@@ -1,9 +1,9 @@
 # Cookbook Name:: dirsrv
 # Resource:: plugin
 #
-# Copyright 2013, Alan Willis <alan@amekoshi.com>
+# Copyright 2013, Alan Willis <alwillis@riotgames.com>
 #
-# All rights reserved - Do Not Redistribute
+# All rights reserved
 #
 
 actions :enable, :disable, :modify

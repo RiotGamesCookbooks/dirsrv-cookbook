@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: dirsrv
-# Recipe:: _vagrant_consumer
+# Recipe:: _vagrant_proxyhub
 #
 # Copyright 2013, Alan Willis <alwillis@riotgames.com>
 #
@@ -28,27 +28,27 @@ include_recipe "dirsrv::_vagrant_replication"
 dirsrv_replica 'o=vagrant' do
   credentials  node[:dirsrv][:credentials]
   instance     node[:hostname] + '_389'
-  id           6
-  role         :consumer
+  id           5
+  role         :hub
 end
 
-# link back to hub
-dirsrv_agreement 'consumer-hub' do
+# link back to secondary master
+dirsrv_agreement 'hub-secondary' do
   credentials  node[:dirsrv][:credentials]
-  host '29.29.29.15'
+  host '29.29.29.14'
   suffix 'o=vagrant'
-  description 'supplier link from consumer to hub'
+  description 'supplier link from hub to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
 
-# Request initialization from hub
-dirsrv_agreement 'hub-consumer' do
+# Request initialization from secondary
+dirsrv_agreement 'secondary-hub' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from hub to consumer'
-  replica_host '29.29.29.15'
+  description 'supplier link from secondary to hub'
+  replica_host '29.29.29.14'
   replica_credentials 'CopyCat!'
 end
 

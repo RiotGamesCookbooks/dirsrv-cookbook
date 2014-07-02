@@ -1,6 +1,6 @@
 name             'dirsrv'
 maintainer       'Alan Willis'
-maintainer_email 'alan@amekoshi.com'
+maintainer_email 'alwillis@riotgames.com'
 license          'All rights reserved'
 description      'Installs/Configures 389ds'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))

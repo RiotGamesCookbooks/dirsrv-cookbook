@@ -214,7 +214,7 @@ user     | Used exclusively by the cfgdir_credentials attribute to create manage
 
 # Author
 
-Author:: Alan Willis (<alan@amekoshi.com>)
+Author:: Alan Willis (<alwillis@riotgames.com>)
 
 # License
 

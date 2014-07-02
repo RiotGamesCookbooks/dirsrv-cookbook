@@ -1,9 +1,9 @@
 # Cookbook Name:: dirsrv
 # Provider:: replica
 #
-# Copyright 2014, Alan Willis <alan@amekoshi.com>
+# Copyright 2014, Alan Willis <alwillis@riotgames.com>
 #
-# All rights reserved - Do Not Redistribute
+# All rights reserved
 #
 
 def whyrun_supported?
