@@ -7,7 +7,7 @@
 # All rights reserved
 #
 
-actions :create, :initialize, :start
+actions :create, :initialize
 default_action :create
 
 attribute :label, :kind_of => String, :name_attribute => true
