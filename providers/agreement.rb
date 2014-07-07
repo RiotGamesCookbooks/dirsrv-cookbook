@@ -94,57 +94,45 @@ action :create do
   end
 end
 
-action :start do
+action :initialize do
 
   dirsrv = Chef::Dirsrv.new
-  @current_status = get_replication_status()
-  original_update_schedule = @agreement[:update_schedule]
+  @current_resource = load_current_resource
 
-  converge_by("Syncing #{new_resource.label} agreement on replica #{new_resource.suffix}") do
-    if @current_status[:update_in_progress] == 'FALSE'
-      dirsrv.modify_entry(@agreement, 'nsDS5ReplicaUpdateSchedule', '0000 0001 0')
-      @current_status = get_replication_status()
-    else
-      Chef::Log.info("Update in progress, skipping start action")
+  converge_by("Check to see if we should initialize #{new_resource.label} agreement") do
+    if @current_resource[:nsDS5ReplicaUpdateInProgress] == 'FALSE'
+      Chef::Log.info("skipping initialization: update in progress")
+      return
     end
-  # Get current value of nsDS5ReplicaUpdateSchedule
-  # Set nsDS5ReplicaUpdateSchedule to '0000 0001 0'
-  # Check status
-  # Set nsDS5ReplicaUpdateSchedule to old value
-  # Check status
+
+    unless @current_resource[:nsDS5ReplicaLastInitStart] == '0' and @current_resource[:nsDS5ReplicaLastInitEnd] == '0'
+      Chef::Log.info("skipping initialization: replication agreement previously initialized")
+      return
+    end
+
+    # Don't set this attribute using a chef resource, since initialization will destroy data.
+    # If a chef resource like dirsrv_entry is used to set this attribute, and if it is referred to again
+    # later in the chef run, this attribute will be cloned without doing the safety checks above
+    Chef::Log.info("Initializing #{new_resource.label} for replica #{new_resource.suffix} on consumer #{new_resource.replica_host}")
+    dirsrv.modify_entry(@current_resource, [ :add, 'nsDS5BeginReplicaRefresh', 'start' ])
   end
 end
 
-action :initialize do
-
-  # Check status
-  # If update_in_progress, do not initialize
-  # If init_start and init_end have valid values, do not initialize
-  # To initialize set nsDS5BeginReplicaRefresh: start
-  # Wait 3 seconds, and check status, Chef::Log init_status
-end
-
-def get_replication_status
+def load_current_resource
 
   dirsrv = Chef::Dirsrv.new
   @resource = Hash.new
-  @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :entry }
-  @resource.dn = "cn=#{new_resource.label},cn=#{new_resource.suffix},cn=mapping tree,cn=config"
+  @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
+  @resource.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
   @resource.host = new_resource.host
   @resource.port = new_resource.port
   @resource.credentials = new_resource.credentials
 
   entry = dirsrv.get_entry( @resource )
-
-#  { 
-#    init_start:         @agreement.entry[:nsDS5ReplicaLastInitStart],
-#    init_end:           @agreement.entry[:nsDS5ReplicaLastInitEnd],
-#    init_status:        @agreement.entry[:nsDS5ReplicaLastInitStatus],
-#    update_start:       @agreement.entry[:nsDS5ReplicaLastUpdateStart],
-#    update_end:         @agreement.entry[:nsDS5ReplicaLastUpdateEnd],
-#    update_status:      @agreement.entry[:nsDS5ReplicaLastUpdateStatus],
-#    update_in_progress: @agreement.entry[:nsDS5ReplicaUpdateInProgress],
-#    update_schedule:    @agreement.entry[:nsDS5ReplicaUpdateSchedule]
-#  }
+  entry.class.module_eval { attr_accessor :host, :port, :credentials }
+  entry.host = new_resource.host
+  entry.port = new_resource.port
+  entry.credentials = new_resource.credentials
+  entry
 end
 

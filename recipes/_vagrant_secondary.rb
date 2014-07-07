@@ -52,6 +52,7 @@ dirsrv_agreement 'primary-secondary' do
   description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
+  action [ :create, :initialize ]
 end
 
 # admin server replica
@@ -81,6 +82,7 @@ dirsrv_agreement 'cfgdir-primary-secondary' do
   description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
+  action [ :create, :initialize ]
 end
 
 service "dirsrv-admin" do
