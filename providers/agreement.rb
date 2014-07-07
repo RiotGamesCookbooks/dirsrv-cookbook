@@ -80,7 +80,7 @@ action :create do
       end
     end
 
-    dirsrv_entry "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
+    dirsrv_entry "cn=#{new_resource.label},cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -129,7 +129,7 @@ def get_replication_status
   dirsrv = Chef::Dirsrv.new
   @resource = Hash.new
   @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :entry }
-  @resource.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
+  @resource.dn = "cn=#{new_resource.label},cn=#{new_resource.suffix},cn=mapping tree,cn=config"
   @resource.host = new_resource.host
   @resource.port = new_resource.port
   @resource.credentials = new_resource.credentials
