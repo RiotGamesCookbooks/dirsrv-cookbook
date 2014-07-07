@@ -100,21 +100,17 @@ action :initialize do
   @current_resource = load_current_resource
 
   converge_by("Check to see if we should initialize #{new_resource.label} agreement") do
-    if @current_resource[:nsDS5ReplicaUpdateInProgress] == 'FALSE'
-      Chef::Log.info("skipping initialization: update in progress")
-      return
+    if @current_resource[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
+      Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
+    elsif @current_resource[:nsDS5ReplicaLastInitStart].first != '0' and @current_resource[:nsDS5ReplicaLastInitEnd].first != '0'
+      Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: already initialized")
+    else
+      # Don't set this attribute using a chef resource, since initialization will destroy data.
+      # If a chef resource like dirsrv_entry is used to set this attribute, and if it is referred to again
+      # later in the chef run, this attribute will be cloned without doing the safety checks above
+      Chef::Log.info("Initializing #{new_resource.label} for replica #{new_resource.suffix} on consumer #{new_resource.replica_host}")
+      dirsrv.modify_entry(@resource, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ])
     end
-
-    unless @current_resource[:nsDS5ReplicaLastInitStart] == '0' and @current_resource[:nsDS5ReplicaLastInitEnd] == '0'
-      Chef::Log.info("skipping initialization: replication agreement previously initialized")
-      return
-    end
-
-    # Don't set this attribute using a chef resource, since initialization will destroy data.
-    # If a chef resource like dirsrv_entry is used to set this attribute, and if it is referred to again
-    # later in the chef run, this attribute will be cloned without doing the safety checks above
-    Chef::Log.info("Initializing #{new_resource.label} for replica #{new_resource.suffix} on consumer #{new_resource.replica_host}")
-    dirsrv.modify_entry(@current_resource, [ :add, 'nsDS5BeginReplicaRefresh', 'start' ])
   end
 end
 
@@ -123,16 +119,12 @@ def load_current_resource
   dirsrv = Chef::Dirsrv.new
   @resource = Hash.new
   @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
-  @resource.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
+  @resource.dn = "cn=#{new_resource.label},cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
   @resource.host = new_resource.host
   @resource.port = new_resource.port
   @resource.credentials = new_resource.credentials
 
   entry = dirsrv.get_entry( @resource )
-  entry.class.module_eval { attr_accessor :host, :port, :credentials }
-  entry.host = new_resource.host
-  entry.port = new_resource.port
-  entry.credentials = new_resource.credentials
   entry
 end
 
