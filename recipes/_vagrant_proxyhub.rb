@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: dirsrv
-# Recipe:: _vagrant_proxyhub
+# Recipe:: _vagrant_proxyproxyhub
 #
 # Copyright 2013, Alan Willis <alwillis@riotgames.com>
 #
@@ -33,29 +33,22 @@ dirsrv_replica 'o=vagrant' do
 end
 
 # link back to secondary master
-dirsrv_agreement 'hub-secondary' do
+dirsrv_agreement 'proxyhub-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.14'
   suffix 'o=vagrant'
-  description 'supplier link from hub to secondary'
+  description 'supplier link from proxyhub to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
 
 # Request initialization from secondary
-dirsrv_agreement 'secondary-hub' do
+dirsrv_agreement 'secondary-proxyhub' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to hub'
+  description 'supplier link from secondary to proxyhub'
   replica_host '29.29.29.14'
   replica_credentials 'CopyCat!'
-end
-
-# Write an entry for this node
-dirsrv_entry "ou=#{node[:hostname]},o=vagrant" do
-  credentials  node[:dirsrv][:credentials]
-  port        389
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
+  action :create_and_initialize
 end

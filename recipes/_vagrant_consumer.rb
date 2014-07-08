@@ -32,30 +32,23 @@ dirsrv_replica 'o=vagrant' do
   role         :consumer
 end
 
-# link back to hub
-dirsrv_agreement 'consumer-hub' do
+# link back to proxyhub
+dirsrv_agreement 'consumer-proxyhub' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.15'
   suffix 'o=vagrant'
-  description 'supplier link from consumer to hub'
+  description 'supplier link from consumer to proxyhub'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
 
-# Request initialization from hub
-dirsrv_agreement 'hub-consumer' do
+# Request initialization from proxyhub
+dirsrv_agreement 'proxyhub-consumer' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from hub to consumer'
+  description 'supplier link from proxyhub to consumer'
   replica_host '29.29.29.15'
   replica_credentials 'CopyCat!'
-end
-
-# Write an entry for this node
-dirsrv_entry "ou=#{node[:hostname]},o=vagrant" do
-  credentials  node[:dirsrv][:credentials]
-  port        389
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
+  action :create_and_initialize
 end

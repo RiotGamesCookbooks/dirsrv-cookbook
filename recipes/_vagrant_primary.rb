@@ -41,11 +41,3 @@ dirsrv_replica 'o=NetscapeRoot' do
   id           1
   role         :multi_master
 end
-
-# Write an entry for this node
-dirsrv_entry "ou=#{node[:hostname]},o=vagrant" do
-  credentials  node[:dirsrv][:credentials]
-  port        389
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
-end

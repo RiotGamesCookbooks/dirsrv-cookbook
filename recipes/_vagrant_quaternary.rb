@@ -51,6 +51,7 @@ dirsrv_agreement 'primary-quaternary' do
   description 'supplier link from primary to quaternary'
   replica_host '29.29.29.13'
   replica_credentials 'CopyCat!'
+  action :create_and_initialize
 end
 
 # link back to secondary master
@@ -93,10 +94,3 @@ dirsrv_agreement 'tertiary-quaternary' do
   replica_credentials 'CopyCat!'
 end
 
-# Write an entry for this node
-dirsrv_entry "ou=#{node[:hostname]},o=vagrant" do
-  credentials  node[:dirsrv][:credentials]
-  port        389
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
-end

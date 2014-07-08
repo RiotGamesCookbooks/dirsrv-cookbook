@@ -52,7 +52,7 @@ dirsrv_agreement 'primary-secondary' do
   description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
-  action [ :create, :initialize ]
+  action :create_and_initialize
 end
 
 # admin server replica
@@ -82,17 +82,10 @@ dirsrv_agreement 'cfgdir-primary-secondary' do
   description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
-  action [ :create, :initialize ]
+  action :create_and_initialize
 end
 
 service "dirsrv-admin" do
   action :start
 end
 
-# Write an entry for this node
-dirsrv_entry "ou=#{node[:hostname]},o=vagrant" do
-  credentials  node[:dirsrv][:credentials]
-  port        389
-  attributes  ({ objectClass: [ 'top', 'organizationalUnit' ], l: [ 'PA', 'CA' ], telephoneNumber: '215-310-5555' })
-  prune      ([ :postalCode, :description ])
-end
