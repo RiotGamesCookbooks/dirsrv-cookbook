@@ -16,7 +16,7 @@ action :create do
   attrs = {
       cn: new_resource.label,
       description: new_resource.description,
-      nsDS5ReplicaPort: new_resource.replica_port,
+      nsDS5ReplicaPort: new_resource.replica_port.to_s,
       nsDS5ReplicaBindDN: new_resource.replica_bind_dn,
       nsDS5ReplicaBindMethod: new_resource.replica_bind_method,
       nsDS5ReplicaTransportInfo: new_resource.replica_transport,
@@ -80,7 +80,7 @@ action :create do
       end
     end
 
-    dirsrv_entry "cn=#{new_resource.label},cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
+    dirsrv_entry "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -94,12 +94,15 @@ action :create do
   end
 end
 
-action :initialize do
+action :create_and_initialize do
 
-  dirsrv = Chef::Dirsrv.new
-  @current_resource = load_current_resource
+  action_create
 
   converge_by("Check to see if we should initialize #{new_resource.label} agreement") do
+
+    dirsrv = Chef::Dirsrv.new
+    @current_resource = load_current_resource
+
     if @current_resource[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
       Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
     elsif @current_resource[:nsDS5ReplicaLastInitStart].first != '0' and @current_resource[:nsDS5ReplicaLastInitEnd].first != '0'
@@ -119,7 +122,7 @@ def load_current_resource
   dirsrv = Chef::Dirsrv.new
   @resource = Hash.new
   @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
-  @resource.dn = "cn=#{new_resource.label},cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
+  @resource.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
   @resource.host = new_resource.host
   @resource.port = new_resource.port
   @resource.credentials = new_resource.credentials
