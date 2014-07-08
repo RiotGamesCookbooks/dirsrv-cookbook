@@ -7,7 +7,7 @@
 # All rights reserved
 #
 
-actions :create, :initialize
+actions :create, :create_and_initialize
 default_action :create
 
 attribute :label, :kind_of => String, :name_attribute => true
@@ -15,7 +15,7 @@ attribute :description, :kind_of => String, :required => true
 attribute :suffix, :kind_of => String, :required => true
 attribute :directory_type, :kind_of => [ :AD, :DS ], :default => :DS
 attribute :replica_host, :kind_of => String, :required => true
-attribute :replica_port, :kind_of => Integer, :default => 389
+attribute :replica_port, :kind_of => [ Integer, String ], :default => 389
 attribute :replica_bind_dn, :kind_of => String, :default => 'cn=Replication Manager,cn=config'
 attribute :replica_update_schedule, :kind_of => String, :default => '0000-2359 0123456'
 attribute :replica_bind_method, :kind_of => [ 'SIMPLE', 'SSLCLIENTAUTH', 'SASL/GSSAPI', 'SASL/DIGEST-MD5' ], :default => 'SIMPLE'
