@@ -37,7 +37,6 @@ dirsrv_agreement 'proxyhub-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.14'
   suffix 'o=vagrant'
-  description 'supplier link from proxyhub to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
@@ -47,7 +46,6 @@ dirsrv_agreement 'secondary-proxyhub' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to proxyhub'
   replica_host '29.29.29.14'
   replica_credentials 'CopyCat!'
   action :create_and_initialize

@@ -11,7 +11,6 @@ actions :create, :create_and_initialize
 default_action :create
 
 attribute :label, :kind_of => String, :name_attribute => true
-attribute :description, :kind_of => String, :required => true
 attribute :suffix, :kind_of => String, :required => true
 attribute :directory_type, :kind_of => [ :AD, :DS ], :default => :DS
 attribute :replica_host, :kind_of => String, :required => true

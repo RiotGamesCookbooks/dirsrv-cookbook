@@ -39,7 +39,6 @@ dirsrv_agreement 'secondary-primary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to primary'
   replica_host '29.29.29.10'
   replica_credentials 'CopyCat!'
 end
@@ -49,7 +48,6 @@ dirsrv_agreement 'primary-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=vagrant'
-  description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
@@ -69,7 +67,6 @@ dirsrv_agreement 'cfgdir-secondary-primary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=NetscapeRoot'
-  description 'supplier link from secondary to primary'
   replica_host '29.29.29.10'
   replica_credentials 'CopyCat!'
 end
@@ -79,7 +76,6 @@ dirsrv_agreement 'cfgdir-primary-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=NetscapeRoot'
-  description 'supplier link from primary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
@@ -88,4 +84,3 @@ end
 service "dirsrv-admin" do
   action :start
 end
-

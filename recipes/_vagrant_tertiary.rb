@@ -36,9 +36,9 @@ end
 # link back to primary master
 dirsrv_agreement 'tertiary-primary' do
   credentials  node[:dirsrv][:credentials]
+  host '29.29.29.12'
   suffix 'o=vagrant'
-  description 'supplier link from tertiary to primary'
-  replica_host '29.29.29.12'
+  replica_host '29.29.29.10'
   replica_credentials 'CopyCat!'
 end
 
@@ -47,7 +47,6 @@ dirsrv_agreement 'primary-tertiary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=vagrant'
-  description 'supplier link from primary to tertiary'
   replica_host '29.29.29.12'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
@@ -58,7 +57,6 @@ dirsrv_agreement 'tertiary-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.12'
   suffix 'o=vagrant'
-  description 'supplier link from tertiary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
@@ -68,7 +66,6 @@ dirsrv_agreement 'secondary-tertiary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to tertiary'
   replica_host '29.29.29.12'
   replica_credentials 'CopyCat!'
 end

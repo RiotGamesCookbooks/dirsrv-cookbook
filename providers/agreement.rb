@@ -15,7 +15,7 @@ action :create do
   # Start with attributes that are common to both Active Directory and Directory Server
   attrs = {
       cn: new_resource.label,
-      description: new_resource.description,
+      description: "#{new_resource.suffix} on #{new_resource.replica_host}",
       nsDS5ReplicaPort: new_resource.replica_port.to_s,
       nsDS5ReplicaBindDN: new_resource.replica_bind_dn,
       nsDS5ReplicaBindMethod: new_resource.replica_bind_method,
@@ -98,36 +98,43 @@ action :create_and_initialize do
 
   action_create
 
-  converge_by("Check to see if we should initialize #{new_resource.label} agreement") do
+  converge_by("Conditional initialization of #{new_resource.label} agreement for #{new_resource.suffix} database on #{new_resource.replica_host}") do
 
-    dirsrv = Chef::Dirsrv.new
-    @current_resource = load_current_resource
+    ruby_block "initialize-#{new_resource.label}-#{new_resource.replica_host}" do
+      block do
 
-    if @current_resource[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
-      Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
-    elsif @current_resource[:nsDS5ReplicaLastInitStart].first != '0' and @current_resource[:nsDS5ReplicaLastInitEnd].first != '0'
-      Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: already initialized")
-    else
-      # Don't set this attribute using a chef resource, since initialization will destroy data.
-      # If a chef resource like dirsrv_entry is used to set this attribute, and if it is referred to again
-      # later in the chef run, this attribute will be cloned without doing the safety checks above
-      Chef::Log.info("Initializing #{new_resource.label} for replica #{new_resource.suffix} on consumer #{new_resource.replica_host}")
-      dirsrv.modify_entry(@resource, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ])
+        # Setup connection
+        dirsrv = Chef::Dirsrv.new
+        connection = Hash.new
+        connection.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
+        connection.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
+        connection.host = new_resource.host
+        connection.port = new_resource.port
+        connection.credentials = new_resource.credentials
+
+        # why run check
+        entry = dirsrv.get_entry( connection )
+
+        if entry[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
+          Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
+        elsif ( entry[:nsDS5ReplicaLastInitStart].first != '0' and entry[:nsDS5ReplicaLastInitEnd].first != '0' ) or /^CHEF_INITIALIZED/.match( entry[:description].first )
+          Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: already initialized")
+        else
+
+          # Initialize and verify
+          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ], [ :replace, :description, "CHEF_INITIALIZED: #{entry[:description].first}" ] ] )
+
+          for count in 1 .. 5
+            entry = dirsrv.get_entry( connection )
+            init_status = entry[:nsDS5ReplicaLastInitStatus].first
+            break if /^0/.match( init_status ) 
+            sleep 1
+            if count == 5
+              Chef::Log.error("Error during initialization: #{init_status}")
+            end
+          end
+        end
+      end
     end
   end
 end
-
-def load_current_resource
-
-  dirsrv = Chef::Dirsrv.new
-  @resource = Hash.new
-  @resource.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
-  @resource.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
-  @resource.host = new_resource.host
-  @resource.port = new_resource.port
-  @resource.credentials = new_resource.credentials
-
-  entry = dirsrv.get_entry( @resource )
-  entry
-end
-

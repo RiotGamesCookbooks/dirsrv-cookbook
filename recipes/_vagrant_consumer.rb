@@ -37,17 +37,15 @@ dirsrv_agreement 'consumer-proxyhub' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.15'
   suffix 'o=vagrant'
-  description 'supplier link from consumer to proxyhub'
-  replica_host '29.29.29.11'
+  replica_host '29.29.29.14'
   replica_credentials 'CopyCat!'
 end
 
 # Request initialization from proxyhub
 dirsrv_agreement 'proxyhub-consumer' do
   credentials  node[:dirsrv][:credentials]
-  host '29.29.29.11'
+  host '29.29.29.14'
   suffix 'o=vagrant'
-  description 'supplier link from proxyhub to consumer'
   replica_host '29.29.29.15'
   replica_credentials 'CopyCat!'
   action :create_and_initialize

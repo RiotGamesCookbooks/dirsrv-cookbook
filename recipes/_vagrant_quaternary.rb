@@ -38,7 +38,6 @@ dirsrv_agreement 'quaternary-primary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
-  description 'supplier link from quaternary to primary'
   replica_host '29.29.29.10'
   replica_credentials 'CopyCat!'
 end
@@ -48,7 +47,6 @@ dirsrv_agreement 'primary-quaternary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=vagrant'
-  description 'supplier link from primary to quaternary'
   replica_host '29.29.29.13'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
@@ -59,7 +57,6 @@ dirsrv_agreement 'quaternary-secondary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
-  description 'supplier link from quaternary to secondary'
   replica_host '29.29.29.11'
   replica_credentials 'CopyCat!'
 end
@@ -69,7 +66,6 @@ dirsrv_agreement 'secondary-quaternary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to quaternary'
   replica_host '29.29.29.13'
   replica_credentials 'CopyCat!'
 end
@@ -79,7 +75,6 @@ dirsrv_agreement 'quaternary-tertiary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
-  description 'supplier link from quaternary to secondary'
   replica_host '29.29.29.12'
   replica_credentials 'CopyCat!'
 end
@@ -89,7 +84,6 @@ dirsrv_agreement 'tertiary-quaternary' do
   credentials  node[:dirsrv][:credentials]
   host '29.29.29.12'
   suffix 'o=vagrant'
-  description 'supplier link from secondary to quaternary'
   replica_host '29.29.29.13'
   replica_credentials 'CopyCat!'
 end
