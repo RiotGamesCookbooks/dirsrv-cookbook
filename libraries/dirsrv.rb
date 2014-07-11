@@ -14,7 +14,7 @@ class Chef
       require 'cicphash'
     end
   
-    def bind ( host, port, credentials )
+    def bind( host, port, credentials )
 
       credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials.to_s
 
@@ -45,7 +45,7 @@ class Chef
       @ldap
     end
  
-    def search ( r, basedn, *constraints )
+    def search( r, basedn, *constraints )
 
       self.bind( r.host, r.port, r.credentials ) unless @ldap
 
@@ -76,7 +76,7 @@ class Chef
       return entries
     end
  
-    def get_entry ( r )
+    def get_entry( r )
  
       self.bind( r.host, r.port, r.credentials ) unless @ldap
   
@@ -91,7 +91,7 @@ class Chef
       return entry ? entry.first : entry
     end
   
-    def add_entry ( r )
+    def add_entry( r )
   
       self.bind( r.host, r.port, r.credentials ) unless @ldap
   
@@ -104,7 +104,7 @@ class Chef
       raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
     end
   
-    def modify_entry ( r, ops )
+    def modify_entry( r, ops )
   
       entry = self.get_entry( r )
 
@@ -112,7 +112,7 @@ class Chef
       raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|Attribute or Value Exists)/
     end
   
-    def delete_entry ( r )
+    def delete_entry( r )
   
       self.bind( r.host, r.port, r.credentials ) unless @ldap
       @ldap.delete dn: r.dn
