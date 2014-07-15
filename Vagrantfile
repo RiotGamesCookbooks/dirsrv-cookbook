@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
     primary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "2048",
+        "--memory", "1280",
         "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
     secondary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "2048",
+        "--memory", "1280",
         "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -107,7 +107,7 @@ Vagrant.configure("2") do |config|
     tertiary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "2048",
+        "--memory", "1280",
         "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -152,7 +152,7 @@ Vagrant.configure("2") do |config|
     quaternary.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "2048",
+        "--memory", "1280",
         "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -194,7 +194,7 @@ Vagrant.configure("2") do |config|
     proxyhub.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1536",
+        "--memory", "1280",
         "--cpus", "1", 
         "--chipset", "ich9",
         "--vram", "10"
@@ -236,7 +236,7 @@ Vagrant.configure("2") do |config|
     consumer.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id, 
-        "--memory", "1536",
+        "--memory", "1280",
         "--cpus", "1", 
         "--chipset", "ich9",
         "--vram", "10"
