@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
   # Primary Master
   config.vm.define "primary" do |primary|
 
-    primary.vm.hostname = "primary"
+    primary.vm.hostname = "primary.vagrant"
     primary.vm.network :private_network, ip: "29.29.29.10"
 
     primary.vm.provider :virtualbox do |vb|
@@ -57,8 +57,10 @@ Vagrant.configure("2") do |config|
   # Secondary Master
   config.vm.define "secondary" do |secondary|
 
-    secondary.vm.hostname = "secondary"
+    secondary.vm.hostname = "secondary.vagrant"
     secondary.vm.network :private_network, ip: "29.29.29.11"
+    secondary.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+    secondary.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
     secondary.vm.provider :virtualbox do |vb|
       vb.customize [
@@ -86,8 +88,7 @@ Vagrant.configure("2") do |config|
             "username" => 'manager',
             "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
-          },
-          :use_yum_epel => true
+          }
         }
       }
 
@@ -100,7 +101,7 @@ Vagrant.configure("2") do |config|
   # Tertiary Master
   config.vm.define "tertiary", autostart: false do |tertiary|
 
-    tertiary.vm.hostname = "tertiary"
+    tertiary.vm.hostname = "tertiary.vagrant"
     tertiary.vm.network :private_network, ip: "29.29.29.12"
 
     tertiary.vm.provider :virtualbox do |vb|
@@ -143,8 +144,10 @@ Vagrant.configure("2") do |config|
   # Quaternary Master
   config.vm.define "quaternary", autostart: false do |quaternary|
 
-    quaternary.vm.hostname = "quaternary"
+    quaternary.vm.hostname = "quaternary.vagrant"
     quaternary.vm.network :private_network, ip: "29.29.29.13"
+    quaternary.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+    quaternary.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
     quaternary.vm.provider :virtualbox do |vb|
       vb.customize [
@@ -172,8 +175,7 @@ Vagrant.configure("2") do |config|
             "username" => 'manager',
             "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
-          },
-          :use_yum_epel => true
+          }
         }
       }
 

@@ -14,10 +14,14 @@ end
 action :create do
 
   tmpl = ::File.join new_resource.conf_dir, 'setup-' + new_resource.instance + '.inf'
-  setup = new_resource.is_cfgdir ? 'setup-ds-admin.pl' : 'setup-ds.pl'
+  setup = new_resource.is_cfgdir ? 'setup-ds-admin' : 'setup-ds'
   instdir = ::File.join new_resource.conf_dir, 'slapd-' + new_resource.instance
   mgrcreds = new_resource.credentials.kind_of?(Hash) ? new_resource.credentials.to_hash : new_resource.credentials.to_s
   admcreds = new_resource.cfgdir_credentials.kind_of?(Hash) ? new_resource.cfgdir_credentials.to_hash : new_resource.cfgdir_credentials.to_s
+
+  if platform_family?("rhel")
+    setup += '.pl'
+  end
 
   config = {
     instance:    new_resource.instance,
@@ -103,8 +107,8 @@ action :start do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true
-      start_command "/sbin/service dirsrv start #{new_resource.instance}"
-      status_command "/sbin/service dirsrv status #{new_resource.instance}"
+      start_command "service dirsrv start #{new_resource.instance}"
+      status_command "service dirsrv status #{new_resource.instance}"
       action :start
     end
 
@@ -126,8 +130,8 @@ action :stop do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true
-      stop_command "/sbin/service dirsrv stop #{new_resource.instance}"
-      status_command "/sbin/service dirsrv status #{new_resource.instance}"
+      stop_command "service dirsrv stop #{new_resource.instance}"
+      status_command "service dirsrv status #{new_resource.instance}"
       action :stop
     end
 
@@ -145,8 +149,8 @@ action :restart do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true, :restart => true
-      restart_command "/sbin/service dirsrv restart #{new_resource.instance}"
-      status_command "/sbin/service dirsrv status #{new_resource.instance}"
+      restart_command "service dirsrv restart #{new_resource.instance}"
+      status_command "service dirsrv status #{new_resource.instance}"
       action :restart
     end
 
