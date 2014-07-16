@@ -232,6 +232,8 @@ Vagrant.configure("2") do |config|
 
     consumer.vm.hostname = "consumer"
     consumer.vm.network :private_network, ip: "29.29.29.15"
+    consumer.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+    consumer.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
     consumer.vm.provider :virtualbox do |vb|
       vb.customize [
@@ -258,8 +260,7 @@ Vagrant.configure("2") do |config|
           :cfgdir_credentials => {
             "username" => 'manager',
             "password" => 'Vagrant!'
-          },
-          :use_yum_epel => true
+          }
         }
       }
 
