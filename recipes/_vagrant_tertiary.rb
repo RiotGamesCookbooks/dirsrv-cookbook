@@ -8,6 +8,7 @@
 #
 
 include_recipe "dirsrv"
+include_recipe "dirsrv::_vagrant_hosts"
 
 dirsrv_instance node[:hostname] + '_389' do
   is_cfgdir     false
