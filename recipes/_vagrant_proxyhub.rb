@@ -17,7 +17,7 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_ldap_port 389
   credentials  node[:dirsrv][:credentials]
   cfgdir_credentials  node[:dirsrv][:cfgdir_credentials]
-  host         node[:fqdn]
+  host         node[:hostname] + '.vagrant'
   suffix       'o=vagrant'
   action       [ :create, :start ]
 end
