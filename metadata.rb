@@ -7,3 +7,12 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          lambda { IO.read(File.join(File.dirname(__FILE__), 'VERSION')) rescue "0.0.1" }.call
 
 depends 'yum', '~> 3.0'
+depends 'hostsfile'
+
+supports 'centos'
+supports 'fedora'
+supports 'oracle'
+supports 'redhat'
+supports 'scientific'
+supports 'debian'
+supports 'ubuntu'
