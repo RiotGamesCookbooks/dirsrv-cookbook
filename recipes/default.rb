@@ -22,6 +22,7 @@ end
 
 chef_gem "net-ldap"
 chef_gem "cicphash"
+chef_gem "json"
 
 user "dirsrv" do
   system true

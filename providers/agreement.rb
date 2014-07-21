@@ -13,9 +13,12 @@ end
 action :create do
 
   # Start with attributes that are common to both Active Directory and Directory Server
+
+  description = { suffix: new_resource.suffix, replica_host: new_resource.replica_host, initialized: false }
+
   attrs = {
       cn: new_resource.label,
-      description: "#{new_resource.suffix} on #{new_resource.replica_host}",
+      description: JSON.generate(description),
       nsDS5ReplicaPort: new_resource.replica_port.to_s,
       nsDS5ReplicaBindDN: new_resource.replica_bind_dn,
       nsDS5ReplicaBindMethod: new_resource.replica_bind_method,
@@ -114,15 +117,17 @@ action :create_and_initialize do
 
         # why run check
         entry = dirsrv.get_entry( connection )
+        description = JSON.parse(entry[:description].first, { symbolize_names: true })
 
         if entry[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
           Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
-        elsif ( entry[:nsDS5ReplicaLastInitStart].first != '0' and entry[:nsDS5ReplicaLastInitEnd].first != '0' ) or /^CHEF_INITIALIZED/.match( entry[:description].first )
+        elsif ( entry[:nsDS5ReplicaLastInitStart].first != '0' and entry[:nsDS5ReplicaLastInitEnd].first != '0' ) or description[:initialized] )
           Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: already initialized")
         else
 
           # Initialize and verify
-          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ], [ :replace, :description, "CHEF_INITIALIZED: #{entry[:description].first}" ] ] )
+          description[:initialized] = true
+          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ], [ :replace, :description, JSON.generate(description) ] ] )
 
           for count in 1 .. 5
             entry = dirsrv.get_entry( connection )
