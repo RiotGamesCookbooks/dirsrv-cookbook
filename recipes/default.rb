@@ -7,7 +7,7 @@
 # All rights reserved
 #
 
-if node[:dirsrv][:use_yum_epel]
+if node[:dirsrv][:use_yum_epel] and platform_family?("rhel")
   yum_repository 'epel' do
     description 'Extra Packages for Enterprise Linux'
     mirrorlist 'http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=$basearch'
