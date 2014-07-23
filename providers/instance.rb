@@ -97,6 +97,10 @@ action :create do
         subscribes :run, "template[#{tmpl}]", :immediately
         notifies :restart, "service[dirsrv-#{new_resource.instance}]", :immediately
       end
+
+      file tmpl do
+        action :delete
+      end
     end
   end
 end
