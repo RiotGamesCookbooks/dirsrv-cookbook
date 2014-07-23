@@ -121,7 +121,7 @@ action :create_and_initialize do
 
         if entry[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
           Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: update in progress")
-        elsif ( entry[:nsDS5ReplicaLastInitStart].first != '0' and entry[:nsDS5ReplicaLastInitEnd].first != '0' ) or description[:initialized] )
+        elsif ( entry[:nsDS5ReplicaLastInitStart].first != '0' and entry[:nsDS5ReplicaLastInitEnd].first != '0' or description[:initialized] )
           Chef::Log.info("Skipping initialization of #{new_resource.label} for replica #{new_resource.suffix}: already initialized")
         else
 
