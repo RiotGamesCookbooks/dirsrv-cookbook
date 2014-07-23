@@ -1,10 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-unless Vagrant.has_plugin?("vagrant-omnibus")
-  raise 'Omnibus plugin is required: vagrant plugin install vagrant-omnibus'
-end
-
 Vagrant.configure("2") do |config|
 
   config.omnibus.chef_version = :latest
@@ -17,7 +13,21 @@ Vagrant.configure("2") do |config|
     primary.vm.hostname = "primary"
     primary.vm.network :private_network, ip: "29.29.29.10"
 
-    primary.vm.provider :virtualbox do |vb|
+    primary.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+      o.vm.network :private_network, ip: "29.29.29.10", libvirt__network_name: "dirsrv0", management_network_name: "default"
+
+      virt.cpus = 2
+      virt.memory = 1024
+    end
+
+    primary.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "vagrant-centos-65-x86_64-minimal"
+      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
@@ -32,6 +42,7 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      #chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
@@ -59,10 +70,22 @@ Vagrant.configure("2") do |config|
 
     secondary.vm.hostname = "secondary"
     secondary.vm.network :private_network, ip: "29.29.29.11"
-    secondary.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-    secondary.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
-    secondary.vm.provider :virtualbox do |vb|
+    secondary.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+
+      virt.memory = "1024"
+      virt.cpus   = "2"
+      virt.volume_cache = "none"
+    end
+
+    secondary.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
@@ -77,6 +100,7 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
@@ -88,7 +112,8 @@ Vagrant.configure("2") do |config|
             "username" => 'manager',
             "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
-          }
+          },
+          :use_yum_epel => true
         }
       }
 
@@ -104,7 +129,21 @@ Vagrant.configure("2") do |config|
     tertiary.vm.hostname = "tertiary"
     tertiary.vm.network :private_network, ip: "29.29.29.12"
 
-    tertiary.vm.provider :virtualbox do |vb|
+    tertiary.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+
+      virt.cpus = 2
+      virt.memory = 1024
+      virt.volume_cache = "none"
+    end
+
+    tertiary.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "vagrant-centos-65-x86_64-minimal"
+      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
@@ -146,10 +185,22 @@ Vagrant.configure("2") do |config|
 
     quaternary.vm.hostname = "quaternary"
     quaternary.vm.network :private_network, ip: "29.29.29.13"
-    quaternary.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-    quaternary.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
-    quaternary.vm.provider :virtualbox do |vb|
+    quaternary.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+
+      virt.memory = "1024"
+      virt.cpus   = "2"
+      virt.volume_cache = "none"
+    end
+
+    quaternary.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
@@ -175,7 +226,8 @@ Vagrant.configure("2") do |config|
             "username" => 'manager',
             "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
             "password" => 'Vagrant!'
-          }
+          },
+          :use_yum_epel => true
         }
       }
 
@@ -191,11 +243,25 @@ Vagrant.configure("2") do |config|
     proxyhub.vm.hostname = "proxyhub"
     proxyhub.vm.network :private_network, ip: "29.29.29.14"
 
-    proxyhub.vm.provider :virtualbox do |vb|
+    proxyhub.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+
+      virt.cpus = 2
+      virt.memory = 1024
+      virt.volume_cache = "none"
+    end
+
+    proxyhub.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "vagrant-centos-65-x86_64-minimal"
+      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
-        "--cpus", "1", 
+        "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
       ]
@@ -232,14 +298,26 @@ Vagrant.configure("2") do |config|
 
     consumer.vm.hostname = "consumer"
     consumer.vm.network :private_network, ip: "29.29.29.15"
-    consumer.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-    consumer.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
-    consumer.vm.provider :virtualbox do |vb|
+    consumer.vm.provider :libvirt do |virt, o|
+
+      o.vm.box = "centos64"
+      o.vm.box_url = "http://kwok.cz/centos64.box"
+
+      virt.memory = "1024"
+      virt.cpus   = "2"
+      virt.volume_cache = "none"
+    end
+
+    consumer.vm.provider :virtualbox do |vb, o|
+
+      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
+      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+
       vb.customize [
         "modifyvm", :id, 
         "--memory", "1024",
-        "--cpus", "1", 
+        "--cpus", "2", 
         "--chipset", "ich9",
         "--vram", "10"
       ]
@@ -260,7 +338,8 @@ Vagrant.configure("2") do |config|
           :cfgdir_credentials => {
             "username" => 'manager',
             "password" => 'Vagrant!'
-          }
+          },
+          :use_yum_epel => true
         }
       }
 
