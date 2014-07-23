@@ -17,7 +17,6 @@ Vagrant.configure("2") do |config|
 
       o.vm.box = "centos64"
       o.vm.box_url = "http://kwok.cz/centos64.box"
-      o.vm.network :private_network, ip: "29.29.29.10", libvirt__network_name: "dirsrv0", management_network_name: "default"
 
       virt.cpus = 2
       virt.memory = 1024
@@ -78,9 +77,8 @@ Vagrant.configure("2") do |config|
       o.vm.box = "centos64"
       o.vm.box_url = "http://kwok.cz/centos64.box"
 
-      virt.memory = "1024"
-      virt.cpus   = "2"
-      virt.volume_cache = "none"
+      virt.cpus = 2
+      virt.memory = 1024
     end
 
     secondary.vm.provider :virtualbox do |vb, o|
@@ -140,7 +138,6 @@ Vagrant.configure("2") do |config|
 
       virt.cpus = 2
       virt.memory = 1024
-      virt.volume_cache = "none"
     end
 
     tertiary.vm.provider :virtualbox do |vb, o|
@@ -197,9 +194,8 @@ Vagrant.configure("2") do |config|
       o.vm.box = "centos64"
       o.vm.box_url = "http://kwok.cz/centos64.box"
 
-      virt.memory = "1024"
-      virt.cpus   = "2"
-      virt.volume_cache = "none"
+      virt.cpus = 2
+      virt.memory = 1024
     end
 
     quaternary.vm.provider :virtualbox do |vb, o|
@@ -258,7 +254,6 @@ Vagrant.configure("2") do |config|
 
       virt.cpus = 2
       virt.memory = 1024
-      virt.volume_cache = "none"
     end
 
     proxyhub.vm.provider :virtualbox do |vb, o|
@@ -314,9 +309,8 @@ Vagrant.configure("2") do |config|
       o.vm.box = "centos64"
       o.vm.box_url = "http://kwok.cz/centos64.box"
 
-      virt.memory = "1024"
-      virt.cpus   = "2"
-      virt.volume_cache = "none"
+      virt.cpus = 2
+      virt.memory = 1024
     end
 
     consumer.vm.provider :virtualbox do |vb, o|
