@@ -33,7 +33,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
@@ -91,7 +93,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
@@ -149,7 +153,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
@@ -206,7 +212,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
@@ -263,7 +271,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
@@ -319,7 +329,9 @@ Vagrant.configure("2") do |config|
         "--memory", "1024",
         "--cpus", "2", 
         "--chipset", "ich9",
-        "--vram", "10"
+        "--vram", "10",
+        "--nictype1", "virtio",
+        "--nictype2", "virtio"
       ]
     end
 
