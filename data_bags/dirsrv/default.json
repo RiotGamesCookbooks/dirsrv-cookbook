@@ -1,6 +1,21 @@
 {
   "id": "default",
-  "userdn": "e1fNxVe+5JNdNfG5zZgqG/zQnN9ig8kSeMUCBGvaO4g=\n",
-  "username": "ZzjkpvN07fosm5CMRa9g2w==\n",
-  "password": "G5QZWCuLXxQuxRUXqV8H7i7xwu955QKQsYSuhBY/FQs=\n"
+  "userdn": {
+    "encrypted_data": "zTdaqBkvpmrnlu0n6bG+sWTsiunR6jT1cQH3EPdy2LXYpMBwSAlZAxI6i8hU\n9crx\n",
+    "iv": "z9RWIXAxw/hEIQmYkpgJcA==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "username": {
+    "encrypted_data": "rJsfDFer5jJdBY0qePih2mzPq4HapJ1wDxMIV02P5E0=\n",
+    "iv": "ENLJZpjvhxJxEF2MLbaVRA==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "password": {
+    "encrypted_data": "zxaT72nDBUYzb2y9Dy9xWs0M6jEV2CU0FWRtLQt/k+c=\n",
+    "iv": "e8kAJQxjx05yueUMij80EQ==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
 }
