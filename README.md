@@ -1,103 +1,75 @@
-dirsrv cookbook
-===============
+# dirsrv cookbook
 
 Installs and configures 389 Directory Server / RedHat Directory Server
 
 See http://port389.org/wiki/Main_Page
 
-## Dependencies and Attributes
-
-This is a library cookbook. The default recipe is capable of installing the software packages and setting certain tuning values, 
-but this is disabled by default assuming that it will likely be done by a wrapper cookbook.
-
 ### Yum cookbook / EPEL repository
 
-The yum cookbook can be used to install the software packages from the EPEL repo (https://fedoraproject.org/wiki/EPEL)
+For RHEL based systems, the yum cookbook can be used to install the software packages from the EPEL repo (https://fedoraproject.org/wiki/EPEL). Just set the ':use_yum_epel' flag to true.
 
+```
 default[:dirsrv][:use_yum_epel] = false
 default[:dirsrv][:packages] = %w{389-ds}
+```
 
 ### Sysctls 
 
-The following sysctls are recommended for 389DS. This cookbook does not attempt to put them into place.
+The following sysctls are recommended for 389DS. You may want to tune these to values appropriate to your system.
 
-fs.file_max = 64000
-net.ipv4.tcp_keepalive_time = 30
-net.ipv4.ip_local_port_range = '1024 65000'
+- fs.file_max = 64000
+- net.ipv4.tcp_keepalive_time = 30
+- net.ipv4.ip_local_port_range = '1024 65000'
 
-## Resources
+### Resources
 
-* dirsrv_instance
+#### dirsrv_instance
 
   Configures a 389 Directory Server instance. See [this installation guide](http://www.centos.org/docs/5/html/CDS/install/8.0/Installation_Guide-Preparing_for_a_Directory_Server_Installation-Installation_Overview.html) for more details.
 
-  * Attributes
-
 Name | Description | Type | Default
 -----|-------------|------|----------
-instance | The name for the instance. This must be unique to the system. An example of a good instance name might be '$HOSTNAME_$PORT'. You can have multiple instances running on the same system, and this cookbook supports this behavior. See Testing for examples. | String |
-suffix | This is the name of the root of the instance's LDAP heirarchy, which is suffixed to the name of each object within the instance. | String |
+instance | The name for the instance which must be unique to the system. You can have multiple instances running on the same system | String | Name Attribute
+suffix | This is the name of the root of the instance's LDAP heirarchy | String 
 credentials | See the 'Credentials' section below | String or Hash | 'default'
-host | The hostname that should be used to create the instance. You may want to specify it if your host is known by multiple names. | String | node[:fqdn]
+host | The hostname that should be used to create the instance. This must include at least one dot ('.') so as to appear to be an FQDN. | String | node[:fqdn]
 port | The port that this instance will listen on. | Integer | 389
-add_org_entries | 389DS comes with a suggested skeleton directory structure. If you would find this useful, you might set this value to true. If you know exactly how you want to organize and arrange your directory tree, then you can leave these options out. | Boolean | false
-add_sample_entries | 389DS comes with a default set of top level entries, and a suggested skeleton directory structure. If you would find this useful, you might set this value to true. If you know exactly how you want to organize and arrange your directory tree, then you can leave these options out. | Boolean | false
-preseed_ldif | If you have an LDIF file with the entries that you would like to use to seed the directory server instance, you should specify the path to the file here. The deployment of this file on the intended system is outside the scope of this cookbook. | String |
+add_org_entries | 389DS comes with a suggested skeleton directory structure. Set this to true if you want it | Boolean | false
+add_sample_entries | 389DS comes with a set of sample top level entries. Set this to true if you want it | Boolean | false
+preseed_ldif | If you would like to preseed your directory server with an LDIF file, specify the path the file here | String |
 conf_dir | The directory that contains configuration files for all of the 389DS instances on a system. | String | '/etc/dirsrv'
 base_dir | The directory that contains the application data for the 389DS service. | String | '/var/lib/dirsrv'
 
-  The administrative node in a 389DS deployment that is used to view and edit the configurations of other 389DS instances is called a 'Configuration Directory' in 389DS parlance. The admin software is an https based application which is used by the graphical 389DS administrative console software to perform advanced administration tasks. If this instance should be configured to either *be* an administrative node, or to *use* an administrative node, the following options will enable you to configure this. 
+The Administration server is an httpd service that can be installed alongside the directory server to enable remote administration ( e.g. starting and stopping the service, managing ssl certificates, configuring replication, editing ldap entries). You can designate one particular node to run an admin service that also acts as a 'Configuration Directory' in 389DS parlance. Connecting to the admin service on a configuration directory node allows you to see and manage all of the directories who have registered their presence with the config directory. The following options will enable you to configure this. 
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-cfgdir_domain | The name of the configuration directory domain. 389DS instances that *are* or *use* a configuration directory instance must supply this. The mechanism can be used to allow multiple groups of administrators access to manage specific sets of instances. | String | 
-cfgdir_credentials | See the 'Credentials' section below | String | 
+admin_domain | The name of the configuration directory domain. See 389DS docs. | String
+admin_credentials | See the 'Credentials' section below | String 
+cfgdir_addr | The ip address that this service should listen on | String | node[:ipaddress]
+cfgdir_http_port | The http port that the admin service should listen on | 9830
+cfgdir_ldap_port | The ldap port for the instance that the admin console service is running on | Integer | 389
+is_cfgdir | Set to true if the instance is the config directory | Boolean | false
+has_cfgdir | Set to true if the instance should register with a config directory | Boolean | false
 
-  * cfgdir_addr
-    The ip address that this service should listen on. Defaults to node[:ipaddress]
+#### dirsrv_entry
 
-  * cfgdir_http_port
-    The http port that the admin service should listen on. Defaults to 9830.
+After the initial setup of the directory server, all subsequent configuration can be accomplished by manipulating LDAP entries in the directory itself. This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library, and can be used with any LDAP directory service.
 
-  * cfgdir_ldap_port
-    The ldap port for the instance that the admin console service is running on. Defaults to 389.
+Name | Description | Type | Default
+-----|-------------|------|----------
+dn | Distinguished Name (DN) | String | Name Attribute
+attributes | Attributes to be set on the entry. Existing attributes of the same name will have their contents replaced | Hash 
+append_attributes | Attributes whose values are to be appended to any existing values, if any | Hash
+seed_attributes | Attributes whose values are to be set once and not modified again | Hash
+prune | List of attributes to be removed, or a Hash of attributes with specific values to be removed | Array or Hash 
+host | The host to connect to | String | localhost
+port | The port to connect to | Integer | 389
+credentials | See the 'Credentials' section below | String or Hash | 'default'
 
-  * is_cfgdir
-    This should be set to true if the instance should be configured as the administrative configuration directory for the specified domain. This can only be set on one system per cfgdir_domain. Default: false
+_* The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity *_
 
-  * has_cfgdir
-    This should be set to true if the instance should be connected to and use an administrative configuration directory service. Multple instances can be connected to the same cfgdir_domain. Default: false
-
-* dirsrv_entry
-
-  This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library to write entries entirely from scratch in Chef and can be used with any LDAP directory service, not just 389DS. The resources that follow this one *are* specific to the 389DS server and they depend upon dirsrv_entry under the hood.
-
-  * dn
-    The Distinguished Name (DN) of the entry
-
-  * attributes
-    A Hash of attributes whose values are to be set upon the LDAP entry. If an entry has an existing attribute of the same name as one specified here, the contents will be overwritten by the values in this hash.
-
-  * append_attributes
-    A Hash of attributes whose values are to be appended to an existing attribute, if any. This is useful to ensure that the supplied values exist without clobbering existing values that were not specified.
-
-  * seed_attributes
-    A Hash of attributes whose values are used to initialize the attribute, and are to be ignored if the attribute exists. This is useful for setting values that should change over time outside of Chef's control. Examples: user passwords, serial number for a DNS domain.
-
-  * prune
-    This can either be an Array of attributes that should be removed entirely, or a Hash of attributes with specific values that should be removed.
-
-  * host
-    The LDAP host to connect to. Default: localhost
-
-  * port
-    The LDAP port to connect to. Default: 389
-
-  * credentials
-    A Hash or String used to specify which credentials will be used to manage the LDAP entry. See dirsrv_instance.
-
-
-* dirsrv_config
+#### dirsrv_config
 
   Configure attributes of the directory server instance itself. The configuration file for the directory server instance is a file called 'dse.ldif' in the instance specific config directory under /etc/dirsrv. This ldif object is loaded upon startup and is best modified at runtime. This resource modifies the attributes of the 'cn=config' ldap entry. You can find a full list of the configuration options available by using "ldapsearch -x -b cn=config -s base -D 'cn=Directory Manager' -W".
 
@@ -110,7 +82,7 @@ cfgdir_credentials | See the 'Credentials' section below | String |
   * credentials
     These values are passed directly to dirsrv_entry
 
-* dirsrv_plugin
+#### dirsrv_plugin
 
   Modify the plugins available to the directory server. To get a full list of the plugins available, use the following command: "ldapsearch -x -b cn=plugins,cn=config -s one -D 'cn=Directory Manager' -W cn dn"
 
@@ -128,7 +100,7 @@ cfgdir_credentials | See the 'Credentials' section below | String |
   * credentials
     These values are passed directly to dirsrv_entry
 
-* dirsrv_index
+#### dirsrv_index
 
   Creates an index on an attribute.
 
@@ -152,7 +124,7 @@ cfgdir_credentials | See the 'Credentials' section below | String |
   * credentials
     These values are passed directly to dirsrv_entry
 
-* dirsrv_user
+#### dirsrv_user
 
   Creates a user for various kinds of identity management purposes. This is useful to create users who can bind (connect) and use the LDAP instance. It can also be used to create users with posix attributes on them for use with UNIX systems.
 
@@ -195,7 +167,39 @@ cfgdir_credentials | See the 'Credentials' section below | String |
   * credentials
     These values are passed directly to dirsrv_entry
 
-## Credentials
+#### dirsrv_replica
+
+* suffix
+* instance
+* id
+* role
+* purge_delay
+* base_dir
+
+#### dirsrv_agreement
+
+label 
+suffix 
+directory_type 
+replica_host 
+replica_port 
+replica_bind_dn 
+replica_update_schedule 
+replica_bind_method 
+replica_transport 
+replica_credentials 
+ds_replicated_attribute_list 
+ds_replicated_attribute_list_total 
+ad_domain 
+ad_new_user_sync 
+ad_new_group_sync 
+ad_one_way_sync 
+ad_sync_interval 
+ad_sync_move_action 
+ad_replica_subtree 
+
+
+### Credentials
 
 The 'credentials' attribute found on many of these resources provides a way to use credentials stored in a databag. It can either be a Hash object with the keys defined below, or a String. If this specified a String, it should contain the name of a databag item within the 'dirsrv' databag that contains a Hash object as specified above. This attribute defaults to the string 'default'. If you create a databag named 'dirsrv' and put a databag item in it named 'default' with these two keys, then it will be used by default and you will not need to specify this option.
 
@@ -205,12 +209,13 @@ userdn   | The bind DN used to initialize the instance and create the initial se
 password | The password, in plain text
 user     | Used exclusively by the cfgdir_credentials attribute to create management credentials for an administrative configuration directory service.
 
-# Testing
+## Examples
 
-# TODO
+The included Vagrantfile and vagrant specific recipes are used to spin up a test environment demonstrating four-way multi-master replication, a proxy/hub and a consumer.  These recipes can be used as a template for use in your wrapper cookbooks. You can read more about various cookbook patterns (here)[http://blog.vialstudios.com/the-environment-cookbook-pattern]
 
-*) Figure out a non-destructive way to do replication agreements
-*) Read credentials from a databag named for the calling cookbook, instead of 'dirsrv'.
+## TODO
+
+* Read credentials from a databag named for the calling cookbook, instead of 'dirsrv'.
 
 # Author
 
