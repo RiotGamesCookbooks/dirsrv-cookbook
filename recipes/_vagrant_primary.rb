@@ -16,8 +16,6 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_addr   '29.29.29.10'
   cfgdir_domain 'vagrant'
   cfgdir_ldap_port 389
-  credentials  node[:dirsrv][:credentials]
-  cfgdir_credentials  node[:dirsrv][:cfgdir_credentials]
   host         node[:hostname] + '.vagrant'
   suffix       'o=vagrant'
   action       [ :create, :start ]
@@ -28,7 +26,6 @@ include_recipe "dirsrv::_vagrant_replication"
 # o=vagrant replica
 
 dirsrv_replica 'o=vagrant' do
-  credentials  node[:dirsrv][:credentials]
   instance     node[:hostname] + '_389'
   id           1
   role         :multi_master
@@ -37,7 +34,6 @@ end
 # admin server replica
 
 dirsrv_replica 'o=NetscapeRoot' do
-  credentials  node[:dirsrv][:cfgdir_credentials]
   instance     node[:hostname] + '_389'
   id           1
   role         :multi_master

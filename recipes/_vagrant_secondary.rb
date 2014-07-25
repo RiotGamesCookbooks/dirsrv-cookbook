@@ -16,8 +16,6 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_addr   '29.29.29.11'
   cfgdir_domain 'vagrant'
   cfgdir_ldap_port 389
-  credentials  node[:dirsrv][:credentials]
-  cfgdir_credentials  node[:dirsrv][:cfgdir_credentials]
   cfgdir_service_start false
   host         node[:hostname] + '.vagrant'
   suffix       'o=vagrant'
@@ -29,7 +27,6 @@ include_recipe "dirsrv::_vagrant_replication"
 # o=vagrant replica
 
 dirsrv_replica 'o=vagrant' do
-  credentials  node[:dirsrv][:credentials]
   instance     node[:hostname] + '_389'
   id           2
   role         :multi_master
@@ -37,7 +34,6 @@ end
 
 # link back to primary master
 dirsrv_agreement 'secondary-primary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
   replica_host '29.29.29.10'
@@ -46,7 +42,6 @@ end
 
 # Request initialization from primary
 dirsrv_agreement 'primary-secondary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=vagrant'
   replica_host '29.29.29.11'
@@ -57,7 +52,6 @@ end
 # admin server replica
 
 dirsrv_replica 'o=NetscapeRoot' do
-  credentials  node[:dirsrv][:cfgdir_credentials]
   instance     node[:hostname] + '_389'
   id           2
   role         :multi_master
@@ -65,7 +59,6 @@ end
 
 # link back to primary master
 dirsrv_agreement 'cfgdir-secondary-primary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=NetscapeRoot'
   replica_host '29.29.29.10'
@@ -74,7 +67,6 @@ end
 
 # Request initialization from primary
 dirsrv_agreement 'cfgdir-primary-secondary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=NetscapeRoot'
   replica_host '29.29.29.11'

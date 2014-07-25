@@ -43,19 +43,10 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
-      #chef.synced_folder_type = "rsync"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }
@@ -106,15 +97,6 @@ Vagrant.configure("2") do |config|
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }
@@ -161,18 +143,10 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }
@@ -219,18 +193,10 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "userdn" => 'uid=manager,ou=administrators,ou=topologymanagement,o=netscaperoot',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }
@@ -277,17 +243,10 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }
@@ -334,17 +293,10 @@ Vagrant.configure("2") do |config|
       chef.data_bags_path = "data_bags"
       chef.cookbooks_path = "vagrant-cookbooks"
       chef.encrypted_data_bag_secret_key_path = "vagrant_encrypted_data_bag_secret"
+      chef.synced_folder_type = "rsync"
 
       chef.json = {
         :dirsrv => {
-          :credentials => {
-            "userdn" => 'cn=Directory Manager',
-            "password" => 'Vagrant!'
-          },
-          :cfgdir_credentials => {
-            "username" => 'manager',
-            "password" => 'Vagrant!'
-          },
           :use_yum_epel => true
         }
       }

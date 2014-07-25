@@ -16,8 +16,6 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_addr   '29.29.29.10'
   cfgdir_domain 'vagrant'
   cfgdir_ldap_port 389
-  credentials  node[:dirsrv][:credentials]
-  cfgdir_credentials  node[:dirsrv][:cfgdir_credentials]
   host         node[:hostname] + '.vagrant'
   suffix       'o=vagrant'
   action       [ :create, :start ]
@@ -28,7 +26,6 @@ include_recipe "dirsrv::_vagrant_replication"
 # o=vagrant replica
 
 dirsrv_replica 'o=vagrant' do
-  credentials  node[:dirsrv][:credentials]
   instance     node[:hostname] + '_389'
   id           4
   role         :multi_master
@@ -36,7 +33,6 @@ end
 
 # link back to primary master
 dirsrv_agreement 'quaternary-primary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
   replica_host '29.29.29.10'
@@ -45,7 +41,6 @@ end
 
 # Request initialization from primary
 dirsrv_agreement 'primary-quaternary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.10'
   suffix 'o=vagrant'
   replica_host '29.29.29.13'
@@ -55,7 +50,6 @@ end
 
 # link back to secondary master
 dirsrv_agreement 'quaternary-secondary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
   replica_host '29.29.29.11'
@@ -64,7 +58,6 @@ end
 
 # link from secondary
 dirsrv_agreement 'secondary-quaternary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.11'
   suffix 'o=vagrant'
   replica_host '29.29.29.13'
@@ -73,7 +66,6 @@ end
 
 # link back to tertiary master
 dirsrv_agreement 'quaternary-tertiary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.13'
   suffix 'o=vagrant'
   replica_host '29.29.29.12'
@@ -82,7 +74,6 @@ end
 
 # link from tertiary
 dirsrv_agreement 'tertiary-quaternary' do
-  credentials  node[:dirsrv][:credentials]
   host '29.29.29.12'
   suffix 'o=vagrant'
   replica_host '29.29.29.13'

@@ -109,11 +109,12 @@ action :create_and_initialize do
         # Setup connection
         dirsrv = Chef::Dirsrv.new
         connection = Hash.new
-        connection.class.module_eval { attr_accessor :dn, :host, :port, :credentials }
+        connection.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :cookbook_name }
         connection.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
         connection.host = new_resource.host
         connection.port = new_resource.port
         connection.credentials = new_resource.credentials
+        connection.cookbook_name = new_resource.cookbook_name
 
         # why run check
         entry = dirsrv.get_entry( connection )
