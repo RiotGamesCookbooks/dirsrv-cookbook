@@ -38,6 +38,20 @@ Vagrant.configure("2") do |config|
       ]
     end
 
+    primary.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
+    end
+
     primary.vm.provision :chef_solo do |chef|
 
       chef.data_bags_path = "data_bags"
@@ -86,6 +100,20 @@ Vagrant.configure("2") do |config|
         "--nictype1", "virtio",
         "--nictype2", "virtio"
       ]
+    end
+
+    secondary.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     secondary.vm.provision :chef_solo do |chef|
@@ -138,6 +166,20 @@ Vagrant.configure("2") do |config|
       ]
     end
 
+    tertiary.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
+    end
+
     tertiary.vm.provision :chef_solo do |chef|
 
       chef.data_bags_path = "data_bags"
@@ -186,6 +228,20 @@ Vagrant.configure("2") do |config|
         "--nictype1", "virtio",
         "--nictype2", "virtio"
       ]
+    end
+
+    quaternary.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     quaternary.vm.provision :chef_solo do |chef|
@@ -238,6 +294,20 @@ Vagrant.configure("2") do |config|
       ]
     end
 
+    proxyhub.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
+    end
+
     proxyhub.vm.provision :chef_solo do |chef|
 
       chef.data_bags_path = "data_bags"
@@ -286,6 +356,20 @@ Vagrant.configure("2") do |config|
         "--nictype1", "virtio",
         "--nictype2", "virtio"
       ]
+    end
+
+    consumer.vm.provider :vmware_workstation do |vmware, o|
+
+      o.vm.box = "precise64_vmware"
+      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+
+      vmware.gui = true
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "2"
+      vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     consumer.vm.provision :chef_solo do |chef|
