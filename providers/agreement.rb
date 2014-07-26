@@ -127,14 +127,20 @@ action :create_and_initialize do
         else
 
           # Initialize and verify
-          description[:initialized] = true
-          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ], [ :replace, :description, JSON.generate(description) ] ] )
+          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ] )
 
           for count in 1 .. 5
+
+            sleep 1
             entry = dirsrv.get_entry( connection )
             init_status = entry[:nsDS5ReplicaLastInitStatus].first
-            break if /^0/.match( init_status ) 
-            sleep 1
+
+            if /^0/.match( init_status )
+              description[:initialized] = true
+              dirsrv.modify_entry( connection, [ [ :replace, :description, JSON.generate(description) ] ] )
+              break
+            end
+
             if count == 5
               Chef::Log.error("Error during initialization: #{init_status}")
             end
