@@ -14,7 +14,7 @@ action :create do
 
   # Start with attributes that are common to both Active Directory and Directory Server
 
-  description = { suffix: new_resource.suffix, replica_host: new_resource.replica_host, initialized: false }
+  description = { sync_from: new_resource.host, sync_to: new_resource.replica_host, initialized: false }
 
   attrs = {
       cn: new_resource.label,
