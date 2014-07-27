@@ -44,7 +44,7 @@ action :create do
     require 'chef/encrypted_data_bag_item'
 
     secret = Chef::EncryptedDataBagItem.load_secret
-    config[:credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', config[:credentials], secret ).to_hash
+    config[:credentials] = Chef::EncryptedDataBagItem.load( new_resource.cookbook_name, config[:credentials], secret ).to_hash
   end
 
   unless config[:credentials].kind_of?(Hash) and config[:credentials].key?('userdn') and config[:credentials].key?('password')
@@ -69,7 +69,7 @@ action :create do
       require 'chef/encrypted_data_bag_item'
 
       secret = Chef::EncryptedDataBagItem.load_secret
-      config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( 'dirsrv', config[:cfgdir_credentials], secret ).to_hash
+      config[:cfgdir_credentials] = Chef::EncryptedDataBagItem.load( new_resource.cookbook_name, config[:cfgdir_credentials], secret ).to_hash
     end
 
     unless config[:cfgdir_credentials].kind_of?(Hash) and config[:cfgdir_credentials].key?('username') and config[:cfgdir_credentials].key?('password')
