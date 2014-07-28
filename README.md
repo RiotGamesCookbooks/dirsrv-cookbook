@@ -245,6 +245,10 @@ The included Vagrantfile and vagrant specific recipes are used to spin up a test
 * Register admin server with configuration directory server a la register-ds-admin
 * Enable the replication user use the same credentials-from-a-databag scheme that dirsrv_entry uses
 
+## Supports
+
+This cookbook is tested and works on CentOS 6.x and it should also work on other RHEL derivatives that can use the EPEL repo. It is also tested and working on recent Ubuntu distributions. It should also work for Debian systems, but the 389-ds packages seem to only be available for Debian sid (unstable).
+
 # Author
 
 Author:: Alan Willis (<alwillis@riotgames.com>)
