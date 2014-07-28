@@ -56,6 +56,12 @@ cfgdir_ldap_port | The ldap port for the instance that the admin console service
 is_cfgdir | Set to true if the instance is the config directory | Boolean | false
 has_cfgdir | Set to true if the instance should register with a config directory | Boolean | false
 
+__ACTIONS__
+* __create__
+* start
+* stop
+* restart
+
 #### dirsrv_entry
 
 After the initial setup of the directory server, all subsequent configuration can be accomplished by manipulating LDAP entries in the directory itself. This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library, and can be used with any LDAP directory service.
@@ -71,6 +77,10 @@ host | The host to connect to | String | localhost
 port | The port to connect to | Integer | 389
 credentials | See the 'Credentials' section below | String or Hash | 'default'
 
+__ACTIONS__
+* __create__
+* delete
+
 __*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
 
 #### dirsrv_config
@@ -82,6 +92,10 @@ Name | Description | Type | Default
 attr | The name of the attribute to be modified | String | Name Attribute
 value | The value(s) to be set | String or Array |
 
+__ACTIONS__
+* __enable__
+* disable
+
 #### dirsrv_plugin
 
 Modify the plugins available to the directory server. To get a full list of the plugins available, use the following command: "ldapsearch -x -b cn=plugins,cn=config -s one -D 'cn=Directory Manager' -W cn dn"
@@ -91,6 +105,11 @@ Name | Description | Type | Default
 common_name | The name of the plugin, including spaces | String | Name Attribute
 attributes | The attributes/values to be set. See dirsrv_entry | Hash
 append_attributes | The attributes/values to be appended to any existing values. See dirsrv_entry | Hash
+
+__ACTIONS__
+* __enable__
+* disable
+* modify
 
 #### dirsrv_index
 
@@ -103,6 +122,9 @@ database | Name of the underlying BDB database | String | 'userRoot'
 equality | Will this index be used to compare string equality? | Boolean | false
 presence | Will this index be used to compare string presence? | Boolean | false
 substring | Will this index be used to perform substring matches? | Boolean | false
+
+__ACTIONS__
+* __create__
 
 #### dirsrv_user
 
@@ -123,6 +145,10 @@ is_person | Will this be used by a person? | Boolean | true
 is_posix | Will this be used on a posix system? | Boolean | true
 is_extensible | Can the entry be extended using custom attributes? | Boolean | false
 
+__ACTIONS__
+* __create__
+* delete
+
 #### dirsrv_replica
 
 A replica object is used to describe the role that the directory instance will play in a replication scheme. Replication documentation can be found [here](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Administration_Guide/Managing_Replication.html)
@@ -135,6 +161,9 @@ id | unique replica id | Integer | Generated from ip address
 role | role that this replica plays in the replication scheme. See below | Integer
 purge_delay | See nsDS5ReplicaPurgeDelay in documentation | Integer | 604800
 base_dir | See dirsrv_instance | String | '/var/lib/dirsrv'
+
+__ACTIONS__
+* __create__
 
 Replica IDs must be unique among all participants in a replication scheme. It is best if they are unique among all of the systems you plan to administer, so that you don't have to worry about overlap should you decide to reorient your replication scheme in the future. If not specified, the id will be generated from the hosts ip address by bitshifting the 4th octet eight bits to the left and adding the second octet.
 
@@ -180,6 +209,20 @@ ad_sync_interval | Corresponds to winSyncInterval | Integer
 ad_sync_move_action | Corresponds to winSyncMoveAction | 'none', 'delete', 'unsync' | 'none'
 ad_replica_subtree | The Active Directory suffix to be replicated to 389DS (nsDS7WindowsReplicaSubtree) | String | 
 
+__ACTIONS__
+* __create__
+* create_and_initialize
+
+Initialization is an action that replaces the data in the current replica with the data in another replica. Since 389 has push-model replication, the process to setup multi-master replication should take the following steps:
+
+1. Create the first replica on node A. For the purposes of demonstration, create a few entries on this replica to represent an existing dataset.
+2. Create the second replica on node B.
+3. Create an agreement on node B to push updates to node A. Since there is no data on the freshly created B, it has no updates to send.
+4. Create an agreement on node A to push updates to node B __*and initialize it upon creation*__. Now B will have the dataset that was on A, and it will be able to publish any updates back to A using the agreement created in step 3.
+
+If we are to introduce any additional nodes to this setup, we would have them request to be initialized from one designated node ( say node A ) and simply create agreements pointing to and from all of the other nodes within the replication scheme.
+
+To see a real working example of this, check out the recipes named *___vagrant_xxx__* or simply 'vagrant up'
 
 ### Credentials
 
