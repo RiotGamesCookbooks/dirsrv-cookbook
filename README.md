@@ -79,7 +79,7 @@ Configure attributes of the directory server instance itself. The configuration 
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-attr | The name of the attribute to be modified | String |
+attr | The name of the attribute to be modified | String | Name Attribute
 value | The value(s) to be set | String or Array |
 
 #### dirsrv_plugin
@@ -88,7 +88,7 @@ Modify the plugins available to the directory server. To get a full list of the 
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-common_name | The name of the plugin, including spaces | String
+common_name | The name of the plugin, including spaces | String | Name Attribute
 attributes | The attributes/values to be set. See dirsrv_entry | Hash
 append_attributes | The attributes/values to be appended to any existing values. See dirsrv_entry | Hash
 
@@ -98,11 +98,11 @@ Creates an index on an attribute.
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-name | The attribute to be indexed | String
+name | The attribute to be indexed | String | Name Attribute
 database | Name of the underlying BDB database | String | 'userRoot'
-equality | Will this index be used to compare string equality? | false
-presence | Will this index be used to compare string presence? | false
-substring | Will this index be used to perform substring matches? | false
+equality | Will this index be used to compare string equality? | Boolean | false
+presence | Will this index be used to compare string presence? | Boolean | false
+substring | Will this index be used to perform substring matches? | Boolean | false
 
 #### dirsrv_user
 
@@ -110,7 +110,7 @@ Creates a user for various kinds of identity management purposes. This is useful
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-common_name | Value to be set as both uid and cn attributes. See relativedn_attribute | String 
+common_name | Value to be set as both uid and cn attributes. See relativedn_attribute | String  | Name Attribute
 surname | The surname of the user. Should be set on accounts that will be used by people | String | Matches the value of common_name.
 password | Optional password should be specified in plaintext. Will be converted to a salted sha (SSHA) hash before being sent to the directory | String 
 home | home directory. Required for posix accounts | String
@@ -129,7 +129,7 @@ A replica object is used to describe the role that the directory instance will p
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-suffix | root of ldap tree. See disrv_instance | String
+suffix | root of ldap tree. See disrv_instance | String | Name Attribute
 instance | name of the instance corresponding to the suffix | String
 id | unique replica id | Integer | Generated from ip address
 role | role that this replica plays in the replication scheme. See below | Integer
@@ -150,7 +150,9 @@ Documentation about these roles can be found [here](https://access.redhat.com/do
 
 #### dirsrv_agreement
 
-Replication Agreements are used to describe a one-way direction for data to be pushed from supplier to consumer. Multiple agreements can be configured on a supplier to push the same set of data to multiple consumers. To accomplish bidirectional synchronization for multi-master replication, there must be two agreements in place, one for each node pushing data to each other, so a node participating in a __:multi_master__ role is both a supplier and a consumer of the dataset that it holds. In order to publish this data, each participating replica must have a DN to bind to that lies outside of the replicated dataset. Typically this replication bind dn is located at 'cn=Replication Manager,cn=config'. The *_vagrant_replication* recipe contains an example of how to use dirsrv_user to create this DN.
+Replication Agreements are used to describe a one-way direction for data to be pushed from supplier to consumer. Multiple agreements can be configured on a supplier to push the same set of data to multiple consumers. To accomplish bidirectional synchronization for multi-master replication, there must be two agreements in place, one for each node pushing data to each other, so a node participating in a __:multi_master__ role is both a supplier and a consumer of the dataset that it holds. 
+
+In order to publish this data, each participating replica must have a DN to bind to that lies outside of the replicated dataset. Typically this replication bind dn is located at 'cn=Replication Manager,cn=config'. The *_vagrant_replication* recipe contains an example of how to use dirsrv_user to create this DN.
 
 Please refer to the [documentation](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Administration_Guide/Managing_Replication-Configuring-Replication-cmd.html) which covers the attributes used to configure both replicas and replication agreements.
 
@@ -158,7 +160,7 @@ Additionally, 389 Directory Server is able to synchronize with Active Directory 
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-label | label must have characters that can be used in an LDAP DN | String
+label | label must have characters that can be used in an LDAP DN | String | Name Attribute
 suffix | see dirsrv_instance | String
 directory_type | 389DS or Active Directory | __:AD__ or __:DS__ | __:DS__
 replica_host | The remote host that will be a consumer for this data | Integer |
