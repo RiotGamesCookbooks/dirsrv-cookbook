@@ -8,7 +8,7 @@ From http://port389.org:
 
 __... or even faster using Chef :)__
 
-### Yum cookbook / EPEL repository
+## Yum cookbook / EPEL repository
 
 For RHEL based systems, the yum cookbook can be used to install the software packages from the [EPEL repo](https://fedoraproject.org/wiki/EPEL). Just set the 'use_yum_epel' flag to true.
 
@@ -17,7 +17,7 @@ default[:dirsrv][:use_yum_epel] = false
 default[:dirsrv][:packages] = %w{389-ds}
 ```
 
-### Sysctls 
+## Sysctls 
 
 The following sysctls are recommended for 389DS. You may want to tune these to values appropriate to your system.
 
@@ -25,9 +25,9 @@ The following sysctls are recommended for 389DS. You may want to tune these to v
 - net.ipv4.tcp_keepalive_time = 30
 - net.ipv4.ip_local_port_range = '1024 65000'
 
-### Resources
+## Resources
 
-#### dirsrv_instance
+### dirsrv_instance
 
   Configures a 389 Directory Server instance. See [this installation guide](http://www.centos.org/docs/5/html/CDS/install/8.0/Installation_Guide-Preparing_for_a_Directory_Server_Installation-Installation_Overview.html) for more details.
 
@@ -62,7 +62,7 @@ __ACTIONS__
 * stop
 * restart
 
-#### dirsrv_entry
+### dirsrv_entry
 
 After the initial setup of the directory server, all subsequent configuration can be accomplished by manipulating LDAP entries in the directory itself. This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library, and can be used with any LDAP directory service.
 
@@ -83,7 +83,7 @@ __ACTIONS__
 
 __*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
 
-#### dirsrv_config
+### dirsrv_config
 
 Configure attributes of the directory server instance itself. The configuration file for the directory server instance is a file called 'dse.ldif' in the instance specific config directory under /etc/dirsrv. This ldif object is loaded upon startup and is best modified at runtime. This resource modifies the attributes of the 'cn=config' ldap entry. You can find a full list of the configuration options available by using "ldapsearch -x -b cn=config -s base -D 'cn=Directory Manager' -W".
 
@@ -96,7 +96,7 @@ __ACTIONS__
 * __enable__
 * disable
 
-#### dirsrv_plugin
+### dirsrv_plugin
 
 Modify the plugins available to the directory server. To get a full list of the plugins available, use the following command: "ldapsearch -x -b cn=plugins,cn=config -s one -D 'cn=Directory Manager' -W cn dn"
 
@@ -111,7 +111,7 @@ __ACTIONS__
 * disable
 * modify
 
-#### dirsrv_index
+### dirsrv_index
 
 Creates an index on an attribute.
 
@@ -126,7 +126,7 @@ substring | Will this index be used to perform substring matches? | Boolean | fa
 __ACTIONS__
 * __create__
 
-#### dirsrv_user
+### dirsrv_user
 
 Creates a user for various kinds of identity management purposes. This is useful to create users who can bind (connect) and use the LDAP instance. It can also be used to create users with posix attributes on them for use with UNIX systems.
 
@@ -149,7 +149,7 @@ __ACTIONS__
 * __create__
 * delete
 
-#### dirsrv_replica
+### dirsrv_replica
 
 A replica object is used to describe the role that the directory instance will play in a replication scheme. Replication documentation can be found [here](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Administration_Guide/Managing_Replication.html)
 
@@ -177,7 +177,7 @@ Replication roles must be one of the following: __:single_master__ __:multi_mast
 
 Documentation about these roles can be found [here](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Deployment_Guide/Designing_the_Replication_Process.html)
 
-#### dirsrv_agreement
+### dirsrv_agreement
 
 Replication Agreements are used to describe a one-way direction for data to be pushed from supplier to consumer. Multiple agreements can be configured on a supplier to push the same set of data to multiple consumers. To accomplish bidirectional synchronization for multi-master replication, there must be two agreements in place, one for each node pushing data to each other, so a node participating in a __:multi_master__ role is both a supplier and a consumer of the dataset that it holds. 
 
@@ -224,7 +224,7 @@ If we are to introduce any additional nodes to this setup, we would have them re
 
 To see a real working example of this, check out the recipes named *___vagrant_xxx__* or simply 'vagrant up'
 
-### Credentials
+## Credentials
 
 The 'credentials' attribute found on many of these resources provides a way to use credentials stored in a databag. It can either be a Hash object with the keys defined below, or a String. If this specified a String, it will look for a databag whose name matches the calling cookbook and pull out an item whose name matches the 'credentials' string. This data bag item should have the Hash keys described below. If no credentials are specified, it will look for a data bag item called 'default_credentials'.  
 
