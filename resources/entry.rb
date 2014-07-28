@@ -17,4 +17,4 @@ attribute :seed_attributes, :kind_of => Hash, :default => {}
 attribute :prune, :kind_of => [ Array, Hash ], :default => []
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
-attribute :credentials, :kind_of => [ String, Hash ], :default => 'default'
+attribute :credentials, :kind_of => [ String, Hash ], :default => 'default_credentials'

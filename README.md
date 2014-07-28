@@ -6,7 +6,7 @@ See http://port389.org/wiki/Main_Page
 
 ### Yum cookbook / EPEL repository
 
-For RHEL based systems, the yum cookbook can be used to install the software packages from the EPEL repo (https://fedoraproject.org/wiki/EPEL). Just set the ':use_yum_epel' flag to true.
+For RHEL based systems, the yum cookbook can be used to install the software packages from the [EPEL repo](https://fedoraproject.org/wiki/EPEL). Just set the 'use_yum_epel' flag to true.
 
 ```
 default[:dirsrv][:use_yum_epel] = false
@@ -67,105 +67,57 @@ host | The host to connect to | String | localhost
 port | The port to connect to | Integer | 389
 credentials | See the 'Credentials' section below | String or Hash | 'default'
 
-_* The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity *_
+__*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
 
 #### dirsrv_config
 
-  Configure attributes of the directory server instance itself. The configuration file for the directory server instance is a file called 'dse.ldif' in the instance specific config directory under /etc/dirsrv. This ldif object is loaded upon startup and is best modified at runtime. This resource modifies the attributes of the 'cn=config' ldap entry. You can find a full list of the configuration options available by using "ldapsearch -x -b cn=config -s base -D 'cn=Directory Manager' -W".
+Configure attributes of the directory server instance itself. The configuration file for the directory server instance is a file called 'dse.ldif' in the instance specific config directory under /etc/dirsrv. This ldif object is loaded upon startup and is best modified at runtime. This resource modifies the attributes of the 'cn=config' ldap entry. You can find a full list of the configuration options available by using "ldapsearch -x -b cn=config -s base -D 'cn=Directory Manager' -W".
 
-  * attr
-    The name of the attribute to be modified
-  * value
-    The value to be set. This can be either a single value or a list.
-  * host
-  * port
-  * credentials
-    These values are passed directly to dirsrv_entry
+Name | Description | Type | Default
+-----|-------------|------|----------
+attr | The name of the attribute to be modified | String |
+value | The value(s) to be set | String or Array |
 
 #### dirsrv_plugin
 
-  Modify the plugins available to the directory server. To get a full list of the plugins available, use the following command: "ldapsearch -x -b cn=plugins,cn=config -s one -D 'cn=Directory Manager' -W cn dn"
+Modify the plugins available to the directory server. To get a full list of the plugins available, use the following command: "ldapsearch -x -b cn=plugins,cn=config -s one -D 'cn=Directory Manager' -W cn dn"
 
-  * common_name
-    The name of the plugin, including spaces.
-
-  * attributes
-    The attributes to be set upon the plugin. You should only use this when you are certain that you know all of the values that a given attribute should have.
-
-  * append_attributes
-    Adds attributes in append-only mode. Existing values will not be replaced.
-
-  * host
-  * port
-  * credentials
-    These values are passed directly to dirsrv_entry
+Name | Description | Type | Default
+-----|-------------|------|----------
+common_name | The name of the plugin, including spaces | String
+attributes | The attributes/values to be set. See dirsrv_entry | Hash
+append_attributes | The attributes/values to be appended to any existing values. See dirsrv_entry | Hash
 
 #### dirsrv_index
 
-  Creates an index on an attribute.
+Creates an index on an attribute.
 
-  * name
-    The name of the attribute to be indexed
-
-  * database
-    The name of the underlying Berkeley database that contains the data. Defaults to 'userRoot' which is probably what you want.
-
-  * equality
-    Set to true if an equality index should be present. Default false.
-
-  * presence
-    Set to true if an presence index should be present. Default false.
-
-  * substring
-    Set to true if an substring index should be present. Default false.
-
-  * host
-  * port
-  * credentials
-    These values are passed directly to dirsrv_entry
+Name | Description | Type | Default
+-----|-------------|------|----------
+name | The attribute to be indexed | String
+database | Name of the underlying BDB database | String | 'userRoot'
+equality | Will this index be used to compare string equality? | false
+presence | Will this index be used to compare string presence? | false
+substring | Will this index be used to perform substring matches? | false
 
 #### dirsrv_user
 
-  Creates a user for various kinds of identity management purposes. This is useful to create users who can bind (connect) and use the LDAP instance. It can also be used to create users with posix attributes on them for use with UNIX systems.
+Creates a user for various kinds of identity management purposes. This is useful to create users who can bind (connect) and use the LDAP instance. It can also be used to create users with posix attributes on them for use with UNIX systems.
 
-  * common_name
-    The name of the user
-
-  * surname
-    The surname of the user. Should be set on accounts that will be used by individual people. Defaults to the value of common_name.
-
-  * password
-    The password that the user should have. (Optional)
-
-  * home
-    The home directory. Required for posix accounts
-
-  * shell
-    The login shell. Required for posix accounts.
-
-  * basedn
-    The distinguished name that should contain the user account entry. Usually this will be something like 'ou=people,...'. This will vary according to your directory hierarchy/layout.
-
-  * relativedn_attribute
-    The relative distinguished name attribute. This is the attribute that will name the common_name attribute from above. Default is 'uid'. Given a common_name of 'bjensen' and a basedn attribute of 'ou=people,o=myorg,c=US' the distinguished name would be 'uid=bjensen,ou=people,o=myorg,c=US'.
-
-  * uid_number
-  * gid_number
-    The uid and gid values required by posix accounts. Duplicate ids will cause permissions and security problems for posix systems. If this is not specified, a search will be performed under the basedn for posixAccount objects, and the maximum values found will be incremented by one and used. If there are no existing entries and if no value is provided, the default value is 1000.
-
-  * is_person
-    Should be set if the user credentials being created are to be used by a person. Includes the use of the 'person', 'organizationalPerson', and 'inetOrgPerson' object classes, which require that surname is set.
-
-  * is_posix
-    Should be set if the user credentials are to be used on a posix system. Includes the use of the 'shadowAccount', 'posixAccount', and 'posixGroup' object classes, which require that uid_number and gid_number are set.
-
-  * is_extensible
-    Includes the use of the 'extensibleObject' object class. This class allows for any attribute to be set on the LDAP entry, so that you can set arbitrary attributes on a user entry without object class violations. Will not allow you to violate the schema restrictions on attributes that are defined by other object classes.
-
-  * host
-  * port
-  * credentials
-    These values are passed directly to dirsrv_entry
+Name | Description | Type | Default
+-----|-------------|------|----------
+common_name | Value to be set as both uid and cn attributes. See relativedn_attribute | String 
+surname | The surname of the user. Should be set on accounts that will be used by people | String | Matches the value of common_name.
+password | Optional password should be specified in plaintext. Will be converted to a salted sha (SSHA) hash before being sent to the directory | String 
+home | home directory. Required for posix accounts | String
+shell | login shell. Required for posix accounts. | String
+basedn | The DN that will be the parent of the user account entry ( e.g. 'ou=people,... ). Required | String
+relativedn_attribute | The relative distinguished name (RDN) attribute. This is will be used to name the common_name attribute from above. Given a common_name of 'bjensen' and a basedn attribute of 'ou=people,o=myorg,c=US' the distinguished name would be 'uid=bjensen,ou=people,o=myorg,c=US'. | 'uid'
+uid_number | Required for posix accounts. If not supplied, the basedn will be searched for the highest value and the next increment will be used | Integer | 1000
+gid_number | Required for posix accounts. If not supplied, the basedn will be searched for the highest value and the next increment will be used | Integer | 1000
+is_person | Will this be used by a person? | Boolean | true
+is_posix | Will this be used on a posix system? | Boolean | true
+is_extensible | Can the entry be extended using custom attributes? | Boolean | false
 
 #### dirsrv_replica
 
@@ -201,21 +153,21 @@ ad_replica_subtree
 
 ### Credentials
 
-The 'credentials' attribute found on many of these resources provides a way to use credentials stored in a databag. It can either be a Hash object with the keys defined below, or a String. If this specified a String, it should contain the name of a databag item within the 'dirsrv' databag that contains a Hash object as specified above. This attribute defaults to the string 'default'. If you create a databag named 'dirsrv' and put a databag item in it named 'default' with these two keys, then it will be used by default and you will not need to specify this option.
+The 'credentials' attribute found on many of these resources provides a way to use credentials stored in a databag. It can either be a Hash object with the keys defined below, or a String. If this specified a String, it will look for a databag whose name matches the calling cookbook and pull out an item whose name matches the 'credentials' string. This data bag item should have the Hash keys described below. If no credentials are specified, it will look for a data bag item called 'default_credentials'.  
 
 key      | value
 ---------|-------
 userdn   | The bind DN used to initialize the instance and create the initial set of LDAP entries. Example: 'cn=Directory Manager'
 password | The password, in plain text
-user     | Used exclusively by the cfgdir_credentials attribute to create management credentials for an administrative configuration directory service.
+user     | Used by the admin_credentials attribute to setup the 389 admin server.
 
 ## Examples
 
-The included Vagrantfile and vagrant specific recipes are used to spin up a test environment demonstrating four-way multi-master replication, a proxy/hub and a consumer.  These recipes can be used as a template for use in your wrapper cookbooks. You can read more about various cookbook patterns (here)[http://blog.vialstudios.com/the-environment-cookbook-pattern]
+The included Vagrantfile and vagrant specific recipes are used to spin up a test environment demonstrating four-way multi-master replication, a proxy/hub and a consumer.  These recipes can be used as a template for use in your wrapper cookbooks. You can read more about various cookbook patterns on Jamie's [blog](http://blog.vialstudios.com/the-environment-cookbook-pattern)
 
 ## TODO
 
-* Read credentials from a databag named for the calling cookbook, instead of 'dirsrv'.
+* Register admin server with configuration directory server a la register-ds-admin
 
 # Author
 
