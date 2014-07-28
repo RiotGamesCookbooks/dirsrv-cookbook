@@ -26,7 +26,7 @@ attribute :ad_domain, :kind_of => String
 attribute :ad_new_user_sync, :kind_of => String
 attribute :ad_new_group_sync, :kind_of => String
 attribute :ad_one_way_sync, :kind_of => String
-attribute :ad_sync_interval, :kind_of => String, :default => '300'
+attribute :ad_sync_interval, :kind_of => Integer, :default => 300
 attribute :ad_sync_move_action, :kind_of => [ 'none', 'delete', 'unsync' ], :default => 'none'
 attribute :ad_replica_subtree, :kind_of => String
 attribute :host, :kind_of => String, :default => 'localhost'

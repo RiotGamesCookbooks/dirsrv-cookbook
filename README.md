@@ -1,8 +1,12 @@
 # dirsrv cookbook
 
-Installs and configures 389 Directory Server / RedHat Directory Server
+Installs and configures 389 Directory Server
 
-See http://port389.org/wiki/Main_Page
+From http://port389.org:
+
+*"The enterprise-class Open Source LDAP server for Linux. It is hardened by real-world use, is full-featured, supports multi-master replication, and already handles many of the largest LDAP deployments in the world. The 389 Directory Server can be downloaded for free and set up in less than an hour using the graphical console."*
+
+__... or even faster using Chef :)__
 
 ### Yum cookbook / EPEL repository
 
@@ -121,34 +125,58 @@ is_extensible | Can the entry be extended using custom attributes? | Boolean | f
 
 #### dirsrv_replica
 
-* suffix
-* instance
-* id
-* role
-* purge_delay
-* base_dir
+A replica object is used to describe the role that the directory instance will play in a replication scheme. Replication documentation can be found [here](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Administration_Guide/Managing_Replication.html)
+
+Name | Description | Type | Default
+-----|-------------|------|----------
+suffix | root of ldap tree. See disrv_instance | String
+instance | name of the instance corresponding to the suffix | String
+id | unique replica id | Integer | Generated from ip address
+role | role that this replica plays in the replication scheme. See below | Integer
+purge_delay | See nsDS5ReplicaPurgeDelay in documentation | Integer | 604800
+base_dir | See dirsrv_instance | String | '/var/lib/dirsrv'
+
+Replica IDs must be unique among all participants in a replication scheme. It is best if they are unique among all of the systems you plan to administer, so that you don't have to worry about overlap should you decide to reorient your replication scheme in the future. If not specified, the id will be generated from the hosts ip address by bitshifting the 4th octet eight bits to the left and adding the second octet.
+
+```
+second = node[:ipaddress].split('.').slice(1).to_i
+fourth = node[:ipaddress].split('.').slice(3).to_i
+replid = new_resource.id.nil? ? (( fourth << 8 ) + second ).to_s : new_resource.id.to_s
+```
+
+Replication roles must be one of the following: __:single_master__ __:multi_master__ __:hub__ and __:consumer__
+
+Documentation about these roles can be found [here](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Deployment_Guide/Designing_the_Replication_Process.html)
 
 #### dirsrv_agreement
 
-label 
-suffix 
-directory_type 
-replica_host 
-replica_port 
-replica_bind_dn 
-replica_update_schedule 
-replica_bind_method 
-replica_transport 
-replica_credentials 
-ds_replicated_attribute_list 
-ds_replicated_attribute_list_total 
-ad_domain 
-ad_new_user_sync 
-ad_new_group_sync 
-ad_one_way_sync 
-ad_sync_interval 
-ad_sync_move_action 
-ad_replica_subtree 
+Replication Agreements are used to describe a one-way direction for data to be pushed from supplier to consumer. Multiple agreements can be configured on a supplier to push the same set of data to multiple consumers. To accomplish bidirectional synchronization for multi-master replication, there must be two agreements in place, one for each node pushing data to each other, so a node participating in a __:multi_master__ role is both a supplier and a consumer of the dataset that it holds. In order to publish this data, each participating replica must have a DN to bind to that lies outside of the replicated dataset. Typically this replication bind dn is located at 'cn=Replication Manager,cn=config'. The *_vagrant_replication* recipe contains an example of how to use dirsrv_user to create this DN.
+
+Please refer to the [documentation](https://access.redhat.com/documentation/en-US/Red_Hat_Directory_Server/9.0/html/Administration_Guide/Managing_Replication-Configuring-Replication-cmd.html) which covers the attributes used to configure both replicas and replication agreements.
+
+Additionally, 389 Directory Server is able to synchronize with Active Directory and this resource can be used to create agreements with AD hosts as well.
+
+Name | Description | Type | Default
+-----|-------------|------|----------
+label | label must have characters that can be used in an LDAP DN | String
+suffix | see dirsrv_instance | String
+directory_type | 389DS or Active Directory | __:AD__ or __:DS__ | __:DS__
+replica_host | The remote host that will be a consumer for this data | Integer |
+replica_port | The port of the consumer replica | Integer | 389
+replica_bind_dn | Bind DN for replication | String | 'cn=Replication Manager,cn=config'
+replica_update_schedule | Corresponds to nsDS5ReplicaUpdateSchedule | String | '0000-2359 0123456'
+replica_bind_method | Corresponds to nsDS5ReplicaBindMethod | String | 'SIMPLE'
+replica_transport | Corresponds to nsDS5ReplicaTransportInfo | String | 'LDAP'
+replica_credentials | Corresponds to nsDS5ReplicaBindCredentials for AD, nsDS5ReplicaCredentials for DS | String | 
+ds_replicated_attribute_list  | Corresponds to nsDS5ReplicatedAttributeList | String | '(objectclass=*) $ EXCLUDE authorityRevocationList accountUnlockTime memberof'
+ds_replicated_attribute_list_total | Corresponds to nsDS5ReplicatedAttributeListTotal | String | '(objectclass=*) $ EXCLUDE accountUnlockTime'
+ad_domain | Active Directory Domain (nsDS7WindowsDomain) | String 
+ad_new_user_sync | Corresponds to nsDS7NewWinUserSyncEnabled | String
+ad_new_group_sync | Corresponds to nsDS7NewWinGroupSyncEnabled | String
+ad_one_way_sync | Corresponds to oneWaySync | String
+ad_sync_interval | Corresponds to winSyncInterval | Integer
+ad_sync_move_action | Corresponds to winSyncMoveAction | 'none', 'delete', 'unsync' | 'none'
+ad_replica_subtree | The Active Directory suffix to be replicated to 389DS (nsDS7WindowsReplicaSubtree) | String | 
 
 
 ### Credentials

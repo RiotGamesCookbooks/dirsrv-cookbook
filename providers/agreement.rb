@@ -50,7 +50,7 @@ action :create do
     attrs[:nsDS7NewWinUserSyncEnabled] = new_resource.ad_new_user_sync if new_resource.ad_new_user_sync
     attrs[:nsDS7NewWinGroupSyncEnabled] = new_resource.ad_new_group_sync if new_resource.ad_new_group_sync
     attrs[:oneWaySync] = new_resource.ad_one_way_sync if new_resource.ad_one_way_sync
-    attrs[:winSyncInterval] = new_resource.ad_sync_interval if new_resource.ad_sync_interval
+    attrs[:winSyncInterval] = new_resource.ad_sync_interval.to_s if new_resource.ad_sync_interval
     attrs[:winSyncMoveAction] = new_resource.ad_sync_move_action if new_resource.ad_sync_move_action
 
     if new_resource.ad_domain.nil?

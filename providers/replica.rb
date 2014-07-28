@@ -21,7 +21,7 @@ action :create do
       objectClass: [ 'top', 'extensibleObject', 'nsDS5Replica' ],
       cn: 'replica',
       nsDS5ReplicaRoot: new_resource.suffix,
-      nsDS5ReplicaPurgeDelay: new_resource.purge_delay,
+      nsDS5ReplicaPurgeDelay: new_resource.purge_delay.to_s,
       nsDS5ReplicaBindDN: 'cn=Replication Manager,cn=config'
   }
 
