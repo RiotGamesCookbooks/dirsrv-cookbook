@@ -228,11 +228,13 @@ To see a real working example of this, check out the recipes named *___vagrant_x
 
 The 'credentials' attribute found on many of these resources provides a way to use credentials stored in a databag. It can either be a Hash object with the keys defined below, or a String. If this specified a String, it will look for a databag whose name matches the calling cookbook and pull out an item whose name matches the 'credentials' string. This data bag item should have the Hash keys described below. If no credentials are specified, it will look for a data bag item called 'default_credentials'.  
 
-key      | value
----------|-------
-userdn   | The bind DN used to initialize the instance and create the initial set of LDAP entries. Example: 'cn=Directory Manager'
-password | The password, in plain text
-user     | Used by the admin_credentials attribute to setup the 389 admin server.
+key      | value | example
+---------|-------|--------
+userdn   | The bind DN used to initialize the instance and create the initial set of LDAP entries | 'cn=Directory Manager' |
+password | The password, in plain text | 'Super Cool Passwords Are Super Cool!!!!!'
+user     | Used by the admin_credentials attribute to setup the 389 admin server | 'manager'
+
+You can specify userdn or user, or both of them if you want the user of the Admin Server to have the same password as the Directory Manager. Of course, you can have many different sets of credentials.
 
 ## Examples
 
@@ -241,6 +243,7 @@ The included Vagrantfile and vagrant specific recipes are used to spin up a test
 ## TODO
 
 * Register admin server with configuration directory server a la register-ds-admin
+* Enable the replication user use the same credentials-from-a-databag scheme that dirsrv_entry uses
 
 # Author
 
