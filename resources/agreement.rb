@@ -31,4 +31,4 @@ attribute :ad_sync_move_action, :kind_of => [ 'none', 'delete', 'unsync' ], :def
 attribute :ad_replica_subtree, :kind_of => String
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
-attribute :credentials, :kind_of => [ String, Hash ], :default => 'default'
+attribute :credentials, :kind_of => [ String, Hash ], :default => 'default_credentials'

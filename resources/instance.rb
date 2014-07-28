@@ -12,7 +12,7 @@ default_action :create
 
 attribute :instance, :kind_of => String, :name_attribute => true
 attribute :suffix, :kind_of => String, :required => true
-attribute :credentials, :kind_of => [ String, Hash ], :default => 'default'
+attribute :credentials, :kind_of => [ String, Hash ], :default => 'default_credentials'
 attribute :host, :kind_of => String, :default => node[:fqdn]
 attribute :port, :kind_of => Integer, :default => 389
 attribute :cfgdir_domain, :kind_of => String

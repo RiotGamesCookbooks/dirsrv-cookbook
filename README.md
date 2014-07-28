@@ -48,8 +48,8 @@ The Administration server is an httpd service that can be installed alongside th
 
 Name | Description | Type | Default
 -----|-------------|------|----------
-admin_domain | The name of the configuration directory domain. See 389DS docs. | String
-admin_credentials | See the 'Credentials' section below | String 
+cfgdir_domain | The name of the configuration directory domain. See 389DS docs. | String
+cfgdir_credentials | See the 'Credentials' section below | String 
 cfgdir_addr | The ip address that this service should listen on | String | node[:ipaddress]
 cfgdir_http_port | The http port that the admin service should listen on | 9830
 cfgdir_ldap_port | The ldap port for the instance that the admin console service is running on | Integer | 389
