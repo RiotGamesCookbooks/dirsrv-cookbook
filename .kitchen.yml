@@ -1,16 +1,25 @@
 ---
 driver:
   name: vagrant
+  vm_hostname: "primary"
+  network:
+  - [ "private_network", { ip: "29.29.29.10" } ]
+  customize:
+    memory: 1024
+    cpus: 2
 
 provisioner:
   name: chef_solo
 
 platforms:
-  - name: ubuntu-12.04
   - name: centos-6.4
 
 suites:
   - name: default
+    data_bags_path: "data_bags"
+    encrypted_data_bag_secret_key_path: "vagrant_encrypted_data_bag_secret"
+    attributes: 
+      dirsrv:
+        use_yum_epel: true
     run_list:
-      - recipe[dirsrv::default]
-    attributes:
+      - recipe[dirsrv::_vagrant_primary]
