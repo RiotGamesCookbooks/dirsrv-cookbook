@@ -1,8 +1,6 @@
 ---
 driver:
   name: vagrant
-  network:
-  - [ "private_network", { ip: "29.29.29.9" } ]
   customize:
     memory: 1024
     cpus: 2
@@ -12,6 +10,7 @@ provisioner:
 
 platforms:
   - name: centos-6.4
+  - name: ubuntu-14.04
 
 suites:
   - name: default
