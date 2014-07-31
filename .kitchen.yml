@@ -1,9 +1,8 @@
 ---
 driver:
   name: vagrant
-  vm_hostname: "primary"
   network:
-  - [ "private_network", { ip: "29.29.29.10" } ]
+  - [ "private_network", { ip: "29.29.29.9" } ]
   customize:
     memory: 1024
     cpus: 2
@@ -22,4 +21,4 @@ suites:
       dirsrv:
         use_yum_epel: true
     run_list:
-      - recipe[dirsrv::_vagrant_primary]
+      - recipe[dirsrv::_test_kitchen]
