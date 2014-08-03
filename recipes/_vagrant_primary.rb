@@ -38,7 +38,3 @@ dirsrv_replica 'o=NetscapeRoot' do
   id           1
   role         :multi_master
 end
-
-dirsrv_test 'test_definition' do
-  test_option 'whee'
-end
