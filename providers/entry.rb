@@ -23,10 +23,11 @@ action :create do
   converge_by("Entry #{@new_resource.dn}") do
 
     dirsrv = Chef::Dirsrv.new
+    @connectinfo = load_connection_info
 
     if @current_resource.nil?
       Chef::Log.info("Adding #{@new_resource.dn}")
-      dirsrv.add_entry(@new_resource)
+      dirsrv.add_entry(@connectinfo, @new_resource)
       new_resource.updated_by_last_action(true)
     else
 
@@ -97,17 +98,17 @@ action :create do
 
         if add_keys.size > 0
           Chef::Log.info("Add #{@new_resource.dn} #{ add_keys }")
-          dirsrv.modify_entry(@new_resource, add_keys)
+          dirsrv.modify_entry(@connectinfo, @new_resource.dn, add_keys)
         end
 
         if update_keys.size > 0
           Chef::Log.info("Update #{@new_resource.dn} #{update_keys}")
-          dirsrv.modify_entry(@new_resource, update_keys)
+          dirsrv.modify_entry(@connectinfo, @new_resource.dn, update_keys)
         end
 
         if prune_keys.size > 0
           Chef::Log.info("Delete #{@new_resource.dn} #{prune_keys}")
-          dirsrv.modify_entry(@new_resource, prune_keys)
+          dirsrv.modify_entry(@connectinfo, @new_resource.dn, prune_keys)
         end
 
         new_resource.updated_by_last_action(true)
@@ -123,7 +124,8 @@ action :delete do
   if @current_resource
     converge_by("Removing #{@current_resource.dn}") do
       dirsrv = Chef::Dirsrv.new
-      dirsrv.delete_entry(@current_resource)
+      @connectinfo = load_connection_info
+      dirsrv.delete_entry(@connectinfo, @current_resource.dn)
     end
   end
 end
@@ -131,6 +133,20 @@ end
 def load_current_resource
 
   dirsrv = Chef::Dirsrv.new
-  @current_resource = dirsrv.get_entry(@new_resource)
+  @connectinfo = load_connection_info
+  @current_resource = dirsrv.get_entry(@connectinfo, @new_resource.dn)
   @current_resource
+end
+
+def load_connection_info
+
+  @connectinfo = Hash.new
+  @connectinfo.class.module_eval { attr_accessor :host, :port, :credentials, :databag_name }
+  @connectinfo.host = new_resource.host
+  @connectinfo.port = new_resource.port
+  @connectinfo.credentials = new_resource.credentials
+  # default databag name is cookbook name
+  databag_name = new_resource.databag_name.nil? ? new_resource.cookbook_name : new_resource.databag_name
+  @connectinfo.databag_name = databag_name
+  @connectinfo
 end

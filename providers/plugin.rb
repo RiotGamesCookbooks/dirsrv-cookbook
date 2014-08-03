@@ -19,6 +19,7 @@ action :enable do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes new_resource.attributes.merge({ :'nsslapd-pluginEnabled' => 'on' })
       append_attributes new_resource.append_attributes
     end
@@ -32,6 +33,7 @@ action :modify do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes new_resource.attributes
       append_attributes new_resource.append_attributes
     end

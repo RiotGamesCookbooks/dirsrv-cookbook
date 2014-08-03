@@ -40,6 +40,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes idxattrs
     end
 
@@ -47,6 +48,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes taskattrs
       action :nothing
       subscribes :create, "dirsrv_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config]", :immediately

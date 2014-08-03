@@ -12,6 +12,7 @@ class Chef # :nodoc:
     # port:: the ldap port to connect to
     # credentials:: either a hash with the userdn and password to use, or a string that identifies the name of a databag item.
     #               see the documentation in the README.md for details.
+    # databag_name:: the name of the databag in which to lookup the credentials
     #
     # The main user of this library is the dirsrv_entry resource, which has sensible defaults for these three items.
   
@@ -35,11 +36,10 @@ class Chef # :nodoc:
     # == Bind
     #
     # This method should not be used directly. It is used to bind to the directory server.
-    # The cookbook_name that is passed in is really the name of the databag that it will use
-    # for looking up connection credentials. The variable name 'cookbook_name' is used for clarity.
+    # The databag_name is the name of the databag that is used for looking up connection credentials.
     # It returns a connected ruby Net::LDAP object
   
-    def bind( host, port, credentials, cookbook_name ) # :yields: host, port, credentials, cookbook_name
+    def bind( host, port, credentials, databag_name ) # :yields: host, port, credentials, databag_name
 
       credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials.to_s
 
@@ -51,7 +51,7 @@ class Chef # :nodoc:
         require 'chef/encrypted_data_bag_item'
 
         secret = Chef::EncryptedDataBagItem.load_secret
-        credentials = Chef::EncryptedDataBagItem.load( cookbook_name, credentials, secret ).to_hash
+        credentials = Chef::EncryptedDataBagItem.load( databag_name, credentials, secret ).to_hash
       end
 
       unless credentials.kind_of?(Hash) and credentials.key?('userdn') and credentials.key?('password')
@@ -77,9 +77,9 @@ class Chef # :nodoc:
     # The default filter is objectClass=* and the default scope is 'base'
     # It returns a list of entries.
  
-    def search( r, basedn, *constraints ) # :yields: r, basedn, filter, scope
+    def search( c, basedn, *constraints ) # :yields: connection_info, basedn, filter, scope
 
-      self.bind( r.host, r.port, r.credentials, r.cookbook_name ) unless @ldap
+      self.bind( c.host, c.port, c.credentials, c.databag_name ) unless @ldap
 
       raise "Must specify base dn for search" unless basedn
 
@@ -114,12 +114,12 @@ class Chef # :nodoc:
     # Chef::Resource::DirsrvEntry objects that will also have a .dn method indicating
     # Distinguished Name to be retrieved. It returns a single entry.
  
-    def get_entry( r ) # :yields: r
+    def get_entry( c, dn ) # :yields: connection_info, distinguished_name
  
-      self.bind( r.host, r.port, r.credentials, r.cookbook_name ) unless @ldap
+      self.bind( c.host, c.port, c.credentials, c.databag_name ) unless @ldap
   
       entry = @ldap.search( 
-                base:   r.dn, 
+                base:   dn, 
                 filter: Net::LDAP::Filter.eq( 'objectClass', '*' ),
                 scope:  Net::LDAP::SearchScope_BaseObject,
                 attributes: [ '*' ]
@@ -135,16 +135,16 @@ class Chef # :nodoc:
     # Chef::Resource::DirsrvEntry objects that will also have a .dn method and attributes 
     # to be set on the entry to be created.
 
-    def add_entry( r ) # :yields: r
+    def add_entry( c, resource ) # :yields: connection_info, resource
   
-      self.bind( r.host, r.port, r.credentials, r.cookbook_name ) unless @ldap
+      self.bind( c.host, c.port, c.credentials, c.databag_name ) unless @ldap
   
-      relativedn = r.dn.split(',').first
+      relativedn = resource.dn.split(',').first
       # Cast as a case insensitive, case preserving hash
-      attrs = CICPHash.new.merge!(r.attributes)
-      attrs.merge!(r.seed_attributes)
+      attrs = CICPHash.new.merge!(resource.attributes)
+      attrs.merge!(resource.seed_attributes)
       attrs.merge!(Hash[*relativedn.split('=').flatten])
-      @ldap.add dn: r.dn, attributes: attrs
+      @ldap.add dn: resource.dn, attributes: attrs
       raise "Unable to add record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message == 'Success'
     end
   
@@ -163,11 +163,11 @@ class Chef # :nodoc:
     # [ [ :add, 'attr1', 'value1' ], [ :replace, :attr2, [ :attr2a, 'attr2b', :attr2c ] ], [ :delete, 'attr3' ], [ :delete, :attr4, 'value4' ] ]
     # Note that none of the values passed can be Integers. They must be STRINGS ONLY! This is a limitation of the ruby net-ldap library.
 
-    def modify_entry( r, ops ) # :yields: r, ops
+    def modify_entry( c, dn, ops ) # :yields: connection_info, distinguished_name, operations
   
-      entry = self.get_entry( r )
+      entry = self.get_entry( c, dn )
 
-      @ldap.modify dn: r.dn, operations: ops
+      @ldap.modify dn: dn, operations: ops
       raise "Unable to modify record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|Attribute or Value Exists)/
     end
   
@@ -176,10 +176,10 @@ class Chef # :nodoc:
     # Expects a connection resource object, along with a .dn method that returns the
     # Distinguished Name of the entry to be deleted.
 
-    def delete_entry( r ) # :yields: r
+    def delete_entry( c, dn ) # :yields: connection_info, distinguished_name
   
-      self.bind( r.host, r.port, r.credentials, r.cookbook_name ) unless @ldap
-      @ldap.delete dn: r.dn
+      self.bind( c.host, c.port, c.credentials, c.databag_name ) unless @ldap
+      @ldap.delete dn: dn
       raise "Unable to remove record: #{@ldap.get_operation_result.message}" unless @ldap.get_operation_result.message =~ /(Success|No Such Object)/
     end
   end

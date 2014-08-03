@@ -79,6 +79,7 @@ action :create do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
+        databag_name new_resource.databag_name
         action :enable
       end
     end
@@ -87,6 +88,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes attrs
       if new_resource.replica_credentials and new_resource.directory_type == :AD
         seed_attributes ({ 'nsDS5ReplicaBindCredentials' => new_resource.replica_credentials })
@@ -106,18 +108,21 @@ action :create_and_initialize do
     ruby_block "initialize-#{new_resource.label}-#{new_resource.replica_host}" do
       block do
 
-        # Setup connection
+        # Setup connection info
         dirsrv = Chef::Dirsrv.new
-        connection = Hash.new
-        connection.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :cookbook_name }
-        connection.dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
-        connection.host = new_resource.host
-        connection.port = new_resource.port
-        connection.credentials = new_resource.credentials
-        connection.cookbook_name = new_resource.cookbook_name
+        connectinfo = Hash.new
+        connectinfo.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :databag_name }
+        connectinfo.host = new_resource.host
+        connectinfo.port = new_resource.port
+        connectinfo.credentials = new_resource.credentials
+        # default to cookbook_name
+        databag_name = new_resource.databag_name.nil? ? new_resource.cookbook_name : new_resource.databag_name
+        connectinfo.databag_name = databag_name
+
+        dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
 
         # why run check
-        entry = dirsrv.get_entry( connection )
+        entry = dirsrv.get_entry( connectinfo, dn )
         description = JSON.parse(entry[:description].first, { symbolize_names: true })
 
         if entry[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
@@ -127,17 +132,17 @@ action :create_and_initialize do
         else
 
           # Initialize and verify
-          dirsrv.modify_entry( connection, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ] )
+          dirsrv.modify_entry( connectinfo, dn, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ] )
 
           for count in 1 .. 5
 
             sleep 1
-            entry = dirsrv.get_entry( connection )
+            entry = dirsrv.get_entry( connectinfo, dn )
             init_status = entry[:nsDS5ReplicaLastInitStatus].first
 
             if /^0/.match( init_status )
               description[:initialized] = true
-              dirsrv.modify_entry( connection, [ [ :replace, :description, JSON.generate(description) ] ] )
+              dirsrv.modify_entry( connectinfo, dn, [ [ :replace, :description, JSON.generate(description) ] ] )
               break
             end
 

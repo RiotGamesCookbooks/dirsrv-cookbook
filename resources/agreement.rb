@@ -32,3 +32,4 @@ attribute :ad_replica_subtree, :kind_of => String
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
 attribute :credentials, :kind_of => [ String, Hash ], :default => 'default_credentials'
+attribute :databag_name, :kind_of => String

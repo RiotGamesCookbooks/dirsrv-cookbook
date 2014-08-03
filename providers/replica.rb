@@ -55,6 +55,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       action :disable
     end
 
@@ -64,6 +65,7 @@ action :create do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
+        databag_name new_resource.databag_name
         action :disable
       end
     end
@@ -73,6 +75,7 @@ action :create do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
+        databag_name new_resource.databag_name
         attributes logattrs
       end
     end
@@ -81,6 +84,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes attrs
     end
   end

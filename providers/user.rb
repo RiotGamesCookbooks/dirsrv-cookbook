@@ -13,7 +13,7 @@ end
 
 action :create do
 
-  @current_resource = load_current_resource
+  @connectinfo = load_connection_info
 
   converge_by("Creating #{new_resource.common_name}") do
 
@@ -50,7 +50,7 @@ action :create do
           attrs[:uidNumber] = new_resource.uid_number.to_s
         end
       else
-        entries = dirsrv.search( new_resource, new_resource.basedn, '(objectClass=posixAccount)' )
+        entries = dirsrv.search( @connectinfo, new_resource.basedn, '(objectClass=posixAccount)' )
         maxuid = entries.empty? ? 1000 : entries.map{ |e| e.uidnumber.max }.max.to_i + 1
         uid = new_resource.uid_number.nil? ? maxuid : new_resource.uid_number
         attrs[:uidNumber] = uid.to_s
@@ -61,7 +61,7 @@ action :create do
           attrs[:gidNumber] = new_resource.gid_number.to_s
         end
       else
-        entries = dirsrv.search( new_resource, new_resource.basedn, '(objectClass=posixAccount)' )
+        entries = dirsrv.search( @connectinfo, new_resource.basedn, '(objectClass=posixAccount)' )
         maxgid = entries.empty? ? 1000 : entries.map{ |e| e.gidnumber.max }.max.to_i + 1
         gid = new_resource.gid_number.nil? ? maxgid : new_resource.gid_number
         attrs[:gidNumber] = gid.to_s
@@ -72,6 +72,7 @@ action :create do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
+      databag_name new_resource.databag_name
       attributes ({ objectClass: objclass }.merge(attrs))
       if new_resource.password
         seed_attributes ({ userPassword: new_resource.password })
@@ -85,11 +86,12 @@ action :delete do
   @current_resource = load_current_resource
 
   if @current_resource
-    converge_by("Removing #{@current_resource.dn}") do
-      dirsrv_entry dn do
+    converge_by("Removing #{@current_resource[:dn]}") do
+      dirsrv_entry @current_resource[:dn] do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
+        databag_name new_resource.databag_name
         action :delete
       end
     end
@@ -97,8 +99,26 @@ action :delete do
 end
 
 def load_current_resource
+
   dirsrv = Chef::Dirsrv.new
-  @current_resource = dirsrv.search( new_resource, new_resource.basedn, "(#{new_resource.relativedn_attribute}=#{new_resource.common_name})" ).first
-  @current_resource.attribute_names.map!{ |k| k.downcase } if @current_resource
+  @connectinfo = load_connection_info
+  @current_resource = dirsrv.search( @connectinfo, 
+                                     @new_resource.basedn, 
+                                     "(#{new_resource.relativedn_attribute}=#{new_resource.common_name})", 
+                                     'one' ).first
   @current_resource
 end
+
+def load_connection_info
+
+  @connectinfo = Hash.new
+  @connectinfo.class.module_eval { attr_accessor :host, :port, :credentials, :databag_name }
+  @connectinfo.host = new_resource.host
+  @connectinfo.port = new_resource.port
+  @connectinfo.credentials = new_resource.credentials
+  # default databag name is cookbook name
+  databag_name = new_resource.databag_name.nil? ? new_resource.cookbook_name : new_resource.databag_name
+  @connectinfo.databag_name = databag_name
+  @connectinfo
+end
+
