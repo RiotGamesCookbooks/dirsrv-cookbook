@@ -43,7 +43,11 @@ class Chef # :nodoc:
 
       credentials = credentials.kind_of?(Hash) ? credentials.to_hash : credentials.to_s
 
-      if credentials.instance_of?(String) and credentials.length > 0
+      unless databag_name.kind_of?(String) or databag_name.kind_of?(Symbol)
+        raise "Invalid databag_name: #{databag_name}"
+      end
+
+      if credentials.kind_of?(String) and credentials.length > 0
 
         # Pull named credentials from the databag
 
@@ -51,7 +55,7 @@ class Chef # :nodoc:
         require 'chef/encrypted_data_bag_item'
 
         secret = Chef::EncryptedDataBagItem.load_secret
-        credentials = Chef::EncryptedDataBagItem.load( databag_name, credentials, secret ).to_hash
+        credentials = Chef::EncryptedDataBagItem.load( databag_name.to_s, credentials, secret ).to_hash
       end
 
       unless credentials.kind_of?(Hash) and credentials.key?('userdn') and credentials.key?('password')
