@@ -76,12 +76,13 @@ prune | List of attributes to be removed, or a Hash of attributes with specific 
 host | The host to connect to | String | localhost
 port | The port to connect to | Integer | 389
 credentials | See the 'Credentials' section below | String or Hash | 'default'
+databag_name | The databag that will be used to lookup the credentials data bag item | String | The name of the calling cookbook
 
 __ACTIONS__
 * __create__
 * delete
 
-__*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port' and 'credentials' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
+__*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port', 'credentials' and 'databag_name' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
 
 ### dirsrv_config
 
@@ -157,8 +158,8 @@ Name | Description | Type | Default
 -----|-------------|------|----------
 suffix | root of ldap tree. See disrv_instance | String | Name Attribute
 instance | name of the instance corresponding to the suffix | String
-id | unique replica id | Integer | Generated from ip address
-role | role that this replica plays in the replication scheme. See below | Integer
+id | unique replica id | Integer | Generated from ip address. See below.
+role | role that this replica plays in the replication scheme | Integer | See below
 purge_delay | See nsDS5ReplicaPurgeDelay in documentation | Integer | 604800
 base_dir | See dirsrv_instance | String | '/var/lib/dirsrv'
 
@@ -242,8 +243,9 @@ The included Vagrantfile and vagrant specific recipes are used to spin up a test
 
 ## TODO
 
-* Register admin server with configuration directory server a la register-ds-admin
-* Enable the replication user use the same credentials-from-a-databag scheme that dirsrv_entry uses
+* Register admin server with a remote configuration directory a la register-ds-admin
+* Certificate management and replication via ssl
+* Add schema files and create schema reload task
 
 ## Supports
 
