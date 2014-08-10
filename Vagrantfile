@@ -4,8 +4,8 @@
 Vagrant.configure("2") do |config|
 
   config.omnibus.chef_version = :latest
-  config.vm.box = "vagrant-centos-65-x86_64-minimal"
-  config.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+  config.vm.box = "opscode-centos-6.4"
+  config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.4_chef-provisionerless.box"
 
   # Primary Master
   config.vm.define "primary" do |primary|
@@ -24,8 +24,8 @@ Vagrant.configure("2") do |config|
 
     primary.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "vagrant-centos-65-x86_64-minimal"
-      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.4_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -40,8 +40,8 @@ Vagrant.configure("2") do |config|
 
     primary.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_centos-6.4_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
@@ -88,8 +88,8 @@ Vagrant.configure("2") do |config|
 
     secondary.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -104,8 +104,8 @@ Vagrant.configure("2") do |config|
 
     secondary.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
@@ -152,8 +152,8 @@ Vagrant.configure("2") do |config|
 
     tertiary.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "vagrant-centos-65-x86_64-minimal"
-      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.4_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -168,8 +168,8 @@ Vagrant.configure("2") do |config|
 
     tertiary.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_centos-6.4_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
@@ -216,8 +216,8 @@ Vagrant.configure("2") do |config|
 
     quaternary.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -232,8 +232,8 @@ Vagrant.configure("2") do |config|
 
     quaternary.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
@@ -280,8 +280,8 @@ Vagrant.configure("2") do |config|
 
     proxyhub.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "vagrant-centos-65-x86_64-minimal"
-      o.vm.box_url = "http://files.brianbirkinbine.com/vagrant-centos-65-x86_64-minimal.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.4_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -296,8 +296,8 @@ Vagrant.configure("2") do |config|
 
     proxyhub.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-centos-6.4"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_centos-6.4_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
@@ -344,8 +344,8 @@ Vagrant.configure("2") do |config|
 
     consumer.vm.provider :virtualbox do |vb, o|
 
-      o.vm.box = "trusty-server-cloudimg-amd64-vagrant-disk1"
-      o.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vb.customize [
         "modifyvm", :id, 
@@ -360,8 +360,8 @@ Vagrant.configure("2") do |config|
 
     consumer.vm.provider :vmware_workstation do |vmware, o|
 
-      o.vm.box = "precise64_vmware"
-      o.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+      o.vm.box = "opscode-ubuntu-14.04"
+      o.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-14.04_chef-provisionerless.box"
 
       vmware.gui = true
       vmware.vmx["memsize"] = "1024"
