@@ -6,6 +6,8 @@
 # All rights reserved
 #
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
@@ -84,7 +86,7 @@ action :create do
       end
     end
 
-    dirsrv_entry "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
+    ldap_entry "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -109,7 +111,7 @@ action :create_and_initialize do
       block do
 
         # Setup connection info
-        dirsrv = Chef::Dirsrv.new
+        ldap = Chef::Ldap.new
         connectinfo = Hash.new
         connectinfo.class.module_eval { attr_accessor :dn, :host, :port, :credentials, :databag_name }
         connectinfo.host = new_resource.host
@@ -122,7 +124,7 @@ action :create_and_initialize do
         dn = "cn=#{new_resource.label},cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config"
 
         # why run check
-        entry = dirsrv.get_entry( connectinfo, dn )
+        entry = ldap.get_entry( connectinfo, dn )
         description = JSON.parse(entry[:description].first, { symbolize_names: true })
 
         if entry[:nsDS5ReplicaUpdateInProgress].first != 'FALSE'
@@ -132,17 +134,17 @@ action :create_and_initialize do
         else
 
           # Initialize and verify
-          dirsrv.modify_entry( connectinfo, dn, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ] )
+          ldap.modify_entry( connectinfo, dn, [ [ :add, :nsDS5BeginReplicaRefresh, 'start' ] ] )
 
           for count in 1 .. 5
 
             sleep 1
-            entry = dirsrv.get_entry( connectinfo, dn )
+            entry = ldap.get_entry( connectinfo, dn )
             init_status = entry[:nsDS5ReplicaLastInitStatus].first
 
             if /^0/.match( init_status )
               description[:initialized] = true
-              dirsrv.modify_entry( connectinfo, dn, [ [ :replace, :description, JSON.generate(description) ] ] )
+              ldap.modify_entry( connectinfo, dn, [ [ :replace, :description, JSON.generate(description) ] ] )
               break
             end
 

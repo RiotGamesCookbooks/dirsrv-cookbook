@@ -7,6 +7,8 @@
 # All rights reserved
 #
 
+include_recipe "ldap"
+
 if node[:dirsrv][:use_yum_epel] and platform_family?("rhel")
   yum_repository 'epel' do
     description 'Extra Packages for Enterprise Linux'
@@ -20,8 +22,6 @@ node[:dirsrv][:packages].each do |pkg|
   package pkg
 end
 
-chef_gem "net-ldap"
-chef_gem "cicphash"
 chef_gem "json"
 
 user "dirsrv" do
