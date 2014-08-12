@@ -13,7 +13,7 @@ include_recipe "dirsrv::_vagrant_hosts"
 dirsrv_instance node[:hostname] + '_389' do
   is_cfgdir     true
   has_cfgdir    true
-  cfgdir_addr   '29.29.29.11'
+  cfgdir_addr   '172.31.255.11'
   cfgdir_domain 'vagrant'
   cfgdir_ldap_port 389
   cfgdir_service_start false
@@ -34,17 +34,17 @@ end
 
 # link back to primary master
 dirsrv_agreement 'secondary-primary' do
-  host '29.29.29.11'
+  host '172.31.255.11'
   suffix 'o=vagrant'
-  replica_host '29.29.29.10'
+  replica_host '172.31.255.10'
   replica_credentials 'CopyCat!'
 end
 
 # Request initialization from primary
 dirsrv_agreement 'primary-secondary' do
-  host '29.29.29.10'
+  host '172.31.255.10'
   suffix 'o=vagrant'
-  replica_host '29.29.29.11'
+  replica_host '172.31.255.11'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
 end
@@ -59,17 +59,17 @@ end
 
 # link back to primary master
 dirsrv_agreement 'cfgdir-secondary-primary' do
-  host '29.29.29.11'
+  host '172.31.255.11'
   suffix 'o=NetscapeRoot'
-  replica_host '29.29.29.10'
+  replica_host '172.31.255.10'
   replica_credentials 'CopyCat!'
 end
 
 # Request initialization from primary
 dirsrv_agreement 'cfgdir-primary-secondary' do
-  host '29.29.29.10'
+  host '172.31.255.10'
   suffix 'o=NetscapeRoot'
-  replica_host '29.29.29.11'
+  replica_host '172.31.255.11'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
 end

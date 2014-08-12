@@ -12,7 +12,7 @@ include_recipe "dirsrv::_vagrant_hosts"
 
 dirsrv_instance node[:hostname] + '_389' do
   has_cfgdir    true
-  cfgdir_addr   '29.29.29.10'
+  cfgdir_addr   '172.31.255.10'
   cfgdir_domain "vagrant"
   cfgdir_ldap_port 389
   host         node[:hostname] + '.vagrant'
@@ -32,17 +32,17 @@ end
 
 # link back to secondary master
 dirsrv_agreement 'proxyhub-secondary' do
-  host '29.29.29.14'
+  host '172.31.255.14'
   suffix 'o=vagrant'
-  replica_host '29.29.29.11'
+  replica_host '172.31.255.11'
   replica_credentials 'CopyCat!'
 end
 
 # Request initialization from secondary
 dirsrv_agreement 'secondary-proxyhub' do
-  host '29.29.29.11'
+  host '172.31.255.11'
   suffix 'o=vagrant'
-  replica_host '29.29.29.14'
+  replica_host '172.31.255.14'
   replica_credentials 'CopyCat!'
   action :create_and_initialize
 end
