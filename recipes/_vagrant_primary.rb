@@ -13,7 +13,7 @@ include_recipe "dirsrv::_vagrant_hosts"
 dirsrv_instance node[:hostname] + '_389' do
   is_cfgdir     true
   has_cfgdir    true
-  cfgdir_addr   '29.29.29.10'
+  cfgdir_addr   '172.31.255.10'
   cfgdir_domain 'vagrant'
   cfgdir_ldap_port 389
   host         node[:hostname] + '.vagrant'

@@ -12,12 +12,12 @@
 # to the 389-ds setup scripts
 
 hosts = { 
-  primary:    '29.29.29.10',
-  secondary:  '29.29.29.11',
-  tertiary:   '29.29.29.12',
-  quaternary: '29.29.29.13',
-  proxyhub:   '29.29.29.14',
-  consumer:   '29.29.29.15'
+  primary:    '172.31.255.10',
+  secondary:  '172.31.255.11',
+  tertiary:   '172.31.255.12',
+  quaternary: '172.31.255.13',
+  proxyhub:   '172.31.255.14',
+  consumer:   '172.31.255.15'
 }
 
 hosts.each do |hostname, ipaddress|

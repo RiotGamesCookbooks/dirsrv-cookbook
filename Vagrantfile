@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "primary" do |primary|
 
     primary.vm.hostname = "primary"
-    primary.vm.network :private_network, ip: "29.29.29.10"
+    primary.vm.network :private_network, ip: "172.31.255.10"
 
     primary.vm.provider :libvirt do |virt, o|
 
@@ -47,9 +47,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     primary.vm.provision :chef_solo do |chef|
@@ -75,7 +73,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "secondary" do |secondary|
 
     secondary.vm.hostname = "secondary"
-    secondary.vm.network :private_network, ip: "29.29.29.11"
+    secondary.vm.network :private_network, ip: "172.31.255.11"
 
     secondary.vm.provider :libvirt do |virt, o|
 
@@ -111,9 +109,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     secondary.vm.provision :chef_solo do |chef|
@@ -139,7 +135,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "tertiary", autostart: false do |tertiary|
 
     tertiary.vm.hostname = "tertiary"
-    tertiary.vm.network :private_network, ip: "29.29.29.12"
+    tertiary.vm.network :private_network, ip: "172.31.255.12"
 
     tertiary.vm.provider :libvirt do |virt, o|
 
@@ -175,9 +171,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     tertiary.vm.provision :chef_solo do |chef|
@@ -203,7 +197,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "quaternary", autostart: false do |quaternary|
 
     quaternary.vm.hostname = "quaternary"
-    quaternary.vm.network :private_network, ip: "29.29.29.13"
+    quaternary.vm.network :private_network, ip: "172.31.255.13"
 
     quaternary.vm.provider :libvirt do |virt, o|
 
@@ -239,9 +233,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     quaternary.vm.provision :chef_solo do |chef|
@@ -267,7 +259,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "proxyhub" do |proxyhub|
 
     proxyhub.vm.hostname = "proxyhub"
-    proxyhub.vm.network :private_network, ip: "29.29.29.14"
+    proxyhub.vm.network :private_network, ip: "172.31.255.14"
 
     proxyhub.vm.provider :libvirt do |virt, o|
 
@@ -303,9 +295,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     proxyhub.vm.provision :chef_solo do |chef|
@@ -331,7 +321,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "consumer" do |consumer|
 
     consumer.vm.hostname = "consumer"
-    consumer.vm.network :private_network, ip: "29.29.29.15"
+    consumer.vm.network :private_network, ip: "172.31.255.15"
 
     consumer.vm.provider :libvirt do |virt, o|
 
@@ -367,9 +357,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["memsize"] = "1024"
       vmware.vmx["numvcpus"] = "2"
       vmware.vmx["ethernet0.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet1.virtualDev"] = "vmxnet"
-      vmware.vmx["ethernet1.connectionType"] = "hostonly"
     end
 
     consumer.vm.provision :chef_solo do |chef|
