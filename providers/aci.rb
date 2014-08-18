@@ -27,6 +27,7 @@ end
 action :set do
 
   @connectinfo = load_connection_info
+  @current_resource = load_current_resource
 
   converge_by("Adding ACI #{new_resource.label} on #{new_resource.dn}") do
 
@@ -84,7 +85,7 @@ action :set do
       port   new_resource.port
       credentials new_resource.credentials
       databag_name new_resource.databag_name
-      attributes ({ aci: access_control_instruction }
+      attributes ({ aci: access_control_instruction })
     end
   end
 end
@@ -126,4 +127,3 @@ def load_connection_info
   @connectinfo.databag_name = databag_name
   @connectinfo
 end
-

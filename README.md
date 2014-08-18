@@ -246,6 +246,7 @@ The included Vagrantfile and vagrant specific recipes are used to spin up a test
 * Register admin server with a remote configuration directory a la register-ds-admin
 * Certificate management and replication via ssl
 * Add schema files and create schema reload task
+* Add support for editing ACIs
 
 ## Supports
 
