@@ -30,8 +30,8 @@ action :create do
   # Ensure that bind method requirements are satisfied 
   case new_resource.replica_bind_method
   when 'SIMPLE', 'SASL/DIGEST-MD5'
-    if new_resource.replica_bind_dn.nil? or new_resource.replica_credentials.nil?
-      Chef::Application.fatal!("The SIMPLE and SASL/DIGEST-MD5 bind methods require both replica_bind_dn and replica_credentials")
+    if new_resource.replica_bind_dn.nil?
+      Chef::Application.fatal!("The SIMPLE and SASL/DIGEST-MD5 bind methods require replica_bind_dn")
     end
   when 'SSLCLIENTAUTH'
     if new_resource.replica_transport == 'LDAP'
