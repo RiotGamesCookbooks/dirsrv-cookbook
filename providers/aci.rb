@@ -80,7 +80,7 @@ action :set do
     #   and ( hours );
     # )
 
-    dirsrv_entry dn do
+    ldap_entry dn do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -96,7 +96,7 @@ action :unset do
 
   if @current_resource
     converge_by("Removing #{@current_resource[:dn]}") do
-      dirsrv_entry @current_resource[:dn] do
+      ldap_entry @current_resource[:dn] do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
