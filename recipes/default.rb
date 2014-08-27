@@ -33,6 +33,7 @@ end
 
 chef_gem "net-ldap"
 chef_gem "cicphash"
+chef_gem "orderedhash"
 chef_gem "json"
 
 user "dirsrv" do
