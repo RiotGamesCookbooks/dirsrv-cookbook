@@ -37,7 +37,7 @@ action :create do
     objclass.push( 'extensibleObject' ) if new_resource.is_extensible
 
     if new_resource.is_person
-      objclass.push( 'person', 'organizationalPerson', 'inetOrgPerson' )
+      objclass.push( 'person', 'organizationalPerson', 'inetOrgPerson', 'inetUser' )
       attrs[:cn] = new_resource.common_name
       attrs[:sn] = new_resource.surname ? new_resource.surname : new_resource.common_name
     end
