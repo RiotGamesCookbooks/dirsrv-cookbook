@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
@@ -82,7 +84,7 @@ action :create do
     end
 
     unless new_resource.role == :consumer
-      dirsrv_entry "cn=changelog5,cn=config" do
+      ldap_entry "cn=changelog5,cn=config" do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
@@ -91,7 +93,7 @@ action :create do
       end
     end
 
-    dirsrv_entry "cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
+    ldap_entry "cn=replica,cn=\"#{new_resource.suffix}\",cn=mapping tree,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials

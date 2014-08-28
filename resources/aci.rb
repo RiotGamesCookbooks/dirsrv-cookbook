@@ -27,7 +27,7 @@ attribute :mode, :kind_of => [ :set, :append, :prune ], :default => :set
 attribute :aci_users, :kind_of => Array, :default => [ 'anyone' ]
 attribute :aci_rights_permissions, :kind_of => Array, :default => [ 'all' ]
 attribute :aci_rights_permit, :kind_of => [ 'allow', 'deny' ], :default => 'allow'
-attribute :aci_attrs, :kind_of => Array, :default => [ '*' ]
+attribute :aci_attrs_list, :kind_of => Array, :default => [ '*' ]
 attribute :aci_attrs_not, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :aci_hosts, :kind_of => String
 attribute :aci_dayofweek, :kind_of => String

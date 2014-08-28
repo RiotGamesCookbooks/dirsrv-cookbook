@@ -38,18 +38,18 @@ end
 
 ## Entry
 
-dirsrv_entry "ou=test,o=kitchen" do
+ldap_entry "ou=test,o=kitchen" do
   attributes ({ objectClass: [ 'organizationalUnit', 'top' ], ou: 'test' })
   action :delete
 end
 
-dirsrv_entry "ou=test,o=kitchen"
+ldap_entry "ou=test,o=kitchen"
 
-dirsrv_entry "ou=test,o=kitchen" do
+ldap_entry "ou=test,o=kitchen" do
   action :delete
 end
 
-dirsrv_entry "ou=test,o=kitchen"
+ldap_entry "ou=test,o=kitchen"
 
 ## Config
 
@@ -90,7 +90,7 @@ end
 
 ## User
 
-dirsrv_user "awillis" do
+ldap_user "awillis" do
   basedn "o=kitchen"
   surname 'Willis'
   home "/home/alan"
@@ -100,10 +100,10 @@ dirsrv_user "awillis" do
   action :delete
 end
 
-dirsrv_user "awillis"
+ldap_user "awillis"
 
-dirsrv_user "awillis" do
+ldap_user "awillis" do
   action :delete
 end
 
-dirsrv_user "awillis"
+ldap_user "awillis"

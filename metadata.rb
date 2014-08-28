@@ -9,6 +9,7 @@ version          '0.1.0'
 depends 'ldap', '~> 1.0.0'
 depends 'yum', '~> 3.0'
 depends 'hostsfile'
+depends 'ldap'
 
 supports 'centos'
 supports 'fedora'

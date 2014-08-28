@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
@@ -47,7 +49,7 @@ action :create do
 
   converge_by("Creating index for #{new_resource.name} attribute") do
 
-    dirsrv_entry "cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config" do
+    ldap_entry "cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -55,14 +57,14 @@ action :create do
       attributes idxattrs
     end
 
-    dirsrv_entry "cn=#{new_resource.name},cn=index,cn=tasks,cn=config" do
+    ldap_entry "cn=#{new_resource.name},cn=index,cn=tasks,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
       databag_name new_resource.databag_name
       attributes taskattrs
       action :nothing
-      subscribes :create, "dirsrv_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config]", :immediately
+      subscribes :create, "ldap_entry[cn=#{new_resource.name},cn=index,cn=#{new_resource.database},cn=ldbm database,cn=plugins,cn=config]", :immediately
     end
   end
 end

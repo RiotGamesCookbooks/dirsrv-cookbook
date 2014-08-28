@@ -34,7 +34,7 @@ end
 
 # cn=Replication Manager,cn=config
 
-dirsrv_user "Replication Manager" do
+ldap_user "Replication Manager" do
   basedn 'cn=config'
   relativedn_attribute 'cn'
   password 'CopyCat!'

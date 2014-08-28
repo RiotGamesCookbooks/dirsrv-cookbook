@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
@@ -26,7 +28,7 @@ action :enable do
 
   converge_by("Enabling plugin: #{@new_resource.common_name}") do
 
-    dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
+    ldap_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -40,7 +42,7 @@ end
 action :modify do
 
   converge_by("Updating plugin: #{@new_resource.common_name}") do
-    dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
+    ldap_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -54,7 +56,7 @@ end
 action :disable do
 
   converge_by("Disabling plugin: #{@new_resource.common_name}") do
-    dirsrv_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
+    ldap_entry "cn=#{new_resource.common_name},cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials

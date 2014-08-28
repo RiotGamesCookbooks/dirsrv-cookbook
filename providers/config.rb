@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
@@ -25,7 +27,7 @@ end
 action :enable do
 
   converge_by("Setting #{new_resource.attr}: #{new_resource.value}") do
-    dirsrv_entry new_resource.attr do
+    ldap_entry new_resource.attr do
       dn     'cn=config'
       host   new_resource.host
       port   new_resource.port
@@ -39,7 +41,7 @@ end
 action :disable do
 
   converge_by("Unsetting #{new_resource.attr}") do
-    dirsrv_entry new_resource.attr do
+    ldap_entry new_resource.attr do
       dn     'cn=config'
       host   new_resource.host
       port   new_resource.port

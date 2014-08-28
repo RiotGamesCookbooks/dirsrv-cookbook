@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "ldap"
+
 if node[:dirsrv][:use_yum_epel] and platform_family?("rhel")
   yum_repository 'epel' do
     description 'Extra Packages for Enterprise Linux'
