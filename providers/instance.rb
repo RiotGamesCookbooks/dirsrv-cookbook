@@ -60,7 +60,7 @@ action :create do
     config[:credentials] = Chef::EncryptedDataBagItem.load( new_resource.cookbook_name, config[:credentials], secret ).to_hash
   end
 
-  unless config[:credentials].kind_of?(Hash) and config[:credentials].key?('userdn') and config[:credentials].key?('password')
+  unless config[:credentials].kind_of?(Hash) and config[:credentials].key?('bind_dn') and config[:credentials].key?('password')
     raise "Invalid credentials: #{config[:credentials]}"
   end
 

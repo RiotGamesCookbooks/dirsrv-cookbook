@@ -28,7 +28,7 @@ action :enable do
 
   converge_by("Setting #{new_resource.attr}: #{new_resource.value}") do
     ldap_entry new_resource.attr do
-      dn     'cn=config'
+      distinguished_name 'cn=config'
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
@@ -42,7 +42,7 @@ action :disable do
 
   converge_by("Unsetting #{new_resource.attr}") do
     ldap_entry new_resource.attr do
-      dn     'cn=config'
+      distinguished_name 'cn=config'
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials

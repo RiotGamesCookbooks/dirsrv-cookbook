@@ -24,7 +24,7 @@ SysUser         = dirsrv
 AddOrgEntries    = <%= @add_org_entries %>
 AddSampleEntries = <%= @add_sample_entries %>
 InstallLdifFile  = <%= @preseed_ldif %>
-RootDN           = <%= @credentials['userdn'] %>
+RootDN           = <%= @credentials['bind_dn'] %>
 RootDNPwd        = <%= @credentials['password'] %>
 ServerIdentifier = <%= @instance %>
 ServerPort       = <%= @port %>
