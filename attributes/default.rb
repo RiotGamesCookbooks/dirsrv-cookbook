@@ -8,4 +8,4 @@
 #
 
 default[:dirsrv][:use_yum_epel] = false
-default[:dirsrv][:packages] = %w{389-ds}
+default[:dirsrv][:packages] = %w{389-admin}
