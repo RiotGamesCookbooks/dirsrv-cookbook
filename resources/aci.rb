@@ -18,20 +18,38 @@
 # limitations under the License.
 #
 
-actions :set, :unset
+actions :set, :extend, :rescind, :unset
 default_action :set
+
+# The :set action allows for setting a new access control instruction
+# The :extend action can introduce new users, groups, attributes, and hosts to the existing permission
+# The :rescind action can remove existing users, groups, attributes and hosts from the existing permission
+# The :unset action removes the whole permission from the entry. 
+# NOTE: An entry may have multiple access control instructions
+# NOTE: You can use this resource to express double negatives which can be confusing 
+# ( e.g. :rescind action on a not_* list ). This is not the same as granting access
+# as that is determined by all of the ACIs collectively, including inherited ACIs.
+# There is a lot expressive power here, be careful :)
 
 attribute :label, :kind_of => String, :name_attribute => true
 attribute :distinguished_name, :kind_of => String, :required => true
-attribute :mode, :kind_of => [ :set, :append, :prune ], :default => :set
-attribute :aci_users, :kind_of => Array, :default => [ 'anyone' ]
-attribute :aci_rights_permissions, :kind_of => Array, :default => [ 'all' ]
-attribute :aci_rights_permit, :kind_of => [ 'allow', 'deny' ], :default => 'allow'
-attribute :aci_attrs_list, :kind_of => Array, :default => [ '*' ]
-attribute :aci_attrs_not, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :aci_hosts, :kind_of => String
-attribute :aci_dayofweek, :kind_of => String
-attribute :aci_timeofday, :kind_of => String
+attribute :permit, :kind_of => [ TrueClass, FalseClass ], :default => true
+attribute :permissions, :kind_of => Array, :default => [ 'all' ]
+# positive
+attribute :userdn, :kind_of => [ Array, String ]
+attribute :groupdn, :kind_of => [ Array, String ]
+attribute :attribute_list, :kind_of => Array, :default => [ '*' ]
+attribute :access_hosts, :kind_of => [ Array, String ]
+# negative
+attribute :not_userdn, :kind_of => [ Array, String ]
+attribute :not_groupdn, :kind_of => [ Array, String ]
+attribute :not_attribute_list, :kind_of => Array
+attribute :not_access_hosts, :kind_of => [ Array, String ]
+# time spec
+attribute :days_of_week, :kind_of => [ Array, String ]
+attribute :time_of_day_start, :kind_of => String
+attribute :time_of_day_end, :kind_of => String
+# for ldap_entry
 attribute :host, :kind_of => String, :default => 'localhost'
 attribute :port, :kind_of => Integer, :default => 389
 attribute :credentials, :kind_of => [ String, Hash ], :default => 'default_credentials'

@@ -28,6 +28,7 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_addr   node[:ipaddress]
   cfgdir_domain 'kitchen'
   cfgdir_ldap_port 389
+  add_sample_entries true
   host         node[:fqdn]
   suffix       'o=kitchen'
   action       [ :create, :start ]
@@ -107,3 +108,19 @@ ldap_user "awillis" do
 end
 
 ldap_user "awillis"
+
+dirsrv_aci 'SIE Group' do
+  distinguished_name 'o=kitchen'
+end
+
+dirsrv_aci 'Configuration Administrator' do
+  distinguished_name 'o=kitchen'
+end
+
+#dirsrv_aci 'Engineering Group Permissions' do
+#  distinguished_name 'ou=people,o=kitchen'
+#end
+
+dirsrv_aci 'Enable Group Expansion' do
+  distinguished_name 'o=netscaperoot'
+end

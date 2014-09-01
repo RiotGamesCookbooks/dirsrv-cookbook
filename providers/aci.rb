@@ -28,84 +28,12 @@ action :set do
 
   @connectinfo = load_connection_info
   @current_resource = load_current_resource
-  access_control_instruction = @current_resource[new_resource.label.to_s]
 
-  converge_by("Setting ACI #{new_resource.label} on #{new_resource.distinguished_name}") do
+  current_aci = @current_resource[new_resource.label.to_s]
 
-    # Target should always be for this DN
+  converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
 
-    # users
-    # Who has access permission? Specify if userdn or groupdn
-    # ( userdn = "" or groupdn = "" ) and any other method
-    # default to ldap:///anyone
-
-    # rights
-    rights = access_control_instruction.match(/(allow|deny)\s*\((.*?)\)/)
-    ( permit, permissions ) = rights.captures
-    permissions = permissions.split(/\,\s*/)
-    rights_aci = Array.new
-
-    case new_resource.mode
-    when :set
-      rights_aci.push(new_resource.aci_rights_permit)
-      permissions = new_resource.aci_rights_permissions.join(',')
-      rights_aci.push(permissions)
-    when :append
-      rights_aci.push(permit)
-      permissions = ( permissions & new_resource.aci_rights_permissions ).join(',')
-      rights_aci.push("\(#{permissions}\)")
-    when :prune
-      rights_aci.push(permit)
-      permissions = ( permissions - new_resource.aci_rights_permissions ).join(',')
-      rights_aci.push("\(#{permissions}\)")
-    end
-
-    rights_aci = rights_aci.join(' ')
-
-    # targets
-    tgtattrs = new_resource.aci_attrs_list
-    tgtequal = new_resource.aci_attrs_not ? '!=' : '='
-    targetattr = access_control_instruction.match(/\(\s*targetattr\s*(\!?=)\s*\"(.*)\"\)/)
-    ( current_tgtequal, current_tgtattrs ) = targetattr.captures
-    current_tgtattrs = current_tgtattrs.split(/\s*\|\|\s*/)
-
-    if new_resource.aci_attrs_list.empty?
-      tgtattrs = current_tgtattrs
-      tgtequal = current_tgtequal
-    end
-
-    targetattr_aci = [ 'targetattr', tgtequal ]
-
-    case new_resource.mode
-    when :set
-      tgtattrs = tgtattrs.join(' || ')
-    when :append
-      tgtattrs.push(current_tgtattrs)
-      tgtattrs = tgtattrs.join(' || ')
-    when :prune
-      tgtattrs = ( current_tgtattrs - tgtattrs ).join(' || ')
-    end
-
-    targetattr_aci.push("\"#{tgtattrs}\"")
-    targetattr_aci = targetattr_aci.join
-
-    # hosts
-    # This is combined with the users and groups who have access
-    # ( users ) and ( ip = "ip" or dns = "domain.name" )
-
-    # time
-    # ( dayofweek = "Mon,Tue,Wed,Thu" ) and
-    # ( timeofday = >= "100" and timeofday < "1900" )
-    
-
-    # Who has access permission? Specify if userdn or groupdn
-    # ( userdn = "" or groupdn = "" ) and any other method
-    # Target should always be for this DN
-    # acl label matches the label attribute
-    # allow set list of items (all), (all,proxy), (read,compare,search,selfwrite,write,delete,add,proxy)
-    # userdn or groupdn and access object
-    # if combined with some other method, then do (ldap:///anyone)
-
+    pp current_aci.inspect
 
     # combine in this order:
     # ( targetattr )
@@ -113,20 +41,55 @@ action :set do
     # ( targetfilter )
     # ( version 3.0;
     #   acl <label>
-    #   allow ( rights )( users )
-    #   and ( hosts )
+    #   allow ( rights )
+    #   ( users_OR_groups )
+    #   and ( ip_OR_dns )
     #   and ( days )
     #   and ( hours );
     # )
+    # (targetattr != "userPassword") 
+    # (version 3.0;
+    # acl "Enable anonymous access";
+    # allow (read,compare,search)
+    # (userdn = "ldap:///uid=awillis,ou=People,o=org" or 
+    # groupdn = "ldap:///cn=HR Managers,ou=Groups,o=org") and 
+    # (ip="10.0.0.1" or 
+    # ip="10.0.0.2" or 
+    # dns="einstein.local") and 
+    # (dayofweek = "Mon,Tue,Wed,Thu") and 
+    # (timeofday >= "100" and timeofday < "2000")
+    # ;)
+    #
+    # (targetattr != "uid || sn || cn") 
+    # (target = "ldap:///ou=People,o=org") 
+    # (targetfilter = (ou=Product Development)) 
+    # (version 3.0;
+    # acl "Engineering Group Permissions";
+    # allow (compare,write)
+    # (groupdn = "ldap:///cn=PD Managers,ou=Groups,o=org" or 
+    # userdn = "ldap:///uid=awillis,ou=People,o=org") and 
+    # (dns=".vagrant" or 
+    # ip="10.0.0.1") and 
+    # (dayofweek = "Tue,Wed,Thu") and 
+    # (timeofday >= "800" and timeofday < "1800")
+    # ;)
 
-    ldap_entry dn do
-      host   new_resource.host
-      port   new_resource.port
-      credentials new_resource.credentials
-      databag_name new_resource.databag_name
-      attributes ({ aci: access_control_instruction })
-    end
+#    ldap_entry dn do
+#      host   new_resource.host
+#      port   new_resource.port
+#      credentials new_resource.credentials
+#      databag_name new_resource.databag_name
+#      attributes ({ aci: access_control_instruction })
+#    end
   end
+end
+
+action :extend do
+# add values
+end
+
+action :restrict do
+# remove values
 end
 
 action :unset do
@@ -153,14 +116,70 @@ def load_current_resource
 
   require 'orderedhash'
 
-  dirsrv = Chef::Dirsrv.new
+  ldap = Chef::Ldap.new
   @connectinfo = load_connection_info
   @current_resource = OrderedHash.new
-  entry = dirsrv.get_entry( @connectinfo, @new_resource.distinguished_name )
+  entry = ldap.get_entry( @connectinfo, @new_resource.distinguished_name )
 
   entry[:aci].each do |aci|
-    label = aci.match(/acl \"(.*)\";/)
-    @current_resource[label.captures.first] = aci
+    label = aci.match(/acl \"(.*?)\";/).captures.first
+    @current_resource[label] = { aci: aci }
+
+    # Permission
+    permission = aci.match(/(allow|deny)\s*\((.*?)\)/)
+    ( permit, rights ) = permission.captures
+    rights = rights.split(/\,\s*/)
+    @current_resource[label][:permission] = { permit: permit, rights: rights }
+
+    target_aci = permission.pre_match
+    bind_rules = permission.post_match
+
+    # Targets 
+
+    # (targetattr != "uid || sn || cn") 
+    targetattr = target_aci.match(/\(\s*targetattr\s*(\!?=)\s*\"(.*?)\"\)/)
+
+    if targetattr
+      ( equality, tgtattrs ) = targetattr.captures
+      tgtattrs = tgtattrs.split(/\s*\|\|\s*/)
+      @current_resource[label][:targetattr] = { equality: equality, attrs: tgtattrs }
+    end
+
+    # (target = "ldap:///ou=People,o=org") 
+    target = target_aci.match(/\(\s*target\s*=\s*\"ldap:\/\/\/(.*?)\"\)/)
+
+    if target
+      @current_resource[label][:target] = target.captures.first
+    end
+
+    # (targetfilter = (ou=Product Development)) 
+    targetfilter = target_aci.match(/\(\s*targetfilter\s*=\s*(.*?)\)/)
+
+    if targetfilter
+      @current_resource[label][:targetfilter] = targetfilter.captures.first
+    end
+
+    # Bind Rules
+
+    bind_rules.scan(/(\w+)\s*(\!?>?=?<?)\s*\"(.*?)\"/) do |rule, equality, value|
+
+      if rule.match(/^ip|dns|userdn|groupdn|dayofweek$/)
+        if @current_resource[label][rule].nil?
+          @current_resource[label][rule] = { equality => [ value ] }
+        else
+          @current_resource[label][rule][equality].push(value)
+        end
+      end
+
+      if rule.match(/timeofday/)
+        if @current_resource[label]['timeofday'].nil?
+          @current_resource[label]['timeofday'] = OrderedHash.new
+          @current_resource[label]['timeofday'][equality] = [ value ]
+        else
+          @current_resource[label][rule][equality].push(value)
+        end
+      end
+    end
   end
 
   @current_resource
