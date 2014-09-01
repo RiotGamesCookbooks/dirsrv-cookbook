@@ -32,15 +32,16 @@ action :set do
 
   converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
 
-     # label, rules
-     pp current_aci     
-     access_control_instruction = compose_aci( new_resource.label, current_aci )
+     permit = new_resource.permit? 'allow' : 'deny'
+     new_aci = { permit: permit, rights: new_resource.rights }
+
+     new_aci = compose_aci( new_resource.label, new_aci )
 
     # ldap_entry doesn't have a specific parameter that allows 
     # us to control just one value of a multi-valued attribute, 
     # so we need to check whether or not we should update
 
-    if current_aci.nil? or current_aci[:aci] != access_control_instruction
+    if current_aci.nil? or current_aci[:aci] != new_aci
       ldap_entry new_resource.distinguished_name do
         host   new_resource.host
         port   new_resource.port
@@ -49,7 +50,7 @@ action :set do
         unless current_aci.nil?
           prune ({ aci: current_aci[:aci] })
         end
-        append_attributes({ aci: access_control_instruction })
+        append_attributes({ aci: new_aci })
       end
     end
   end

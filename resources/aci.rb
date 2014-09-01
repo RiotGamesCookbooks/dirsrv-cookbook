@@ -34,7 +34,7 @@ default_action :set
 attribute :label, :kind_of => String, :name_attribute => true
 attribute :distinguished_name, :kind_of => String, :required => true
 attribute :permit, :kind_of => [ TrueClass, FalseClass ], :default => true
-attribute :permissions, :kind_of => Array, :default => [ 'all' ]
+attribute :rights, :kind_of => Array, :default => [ 'all' ]
 # positive
 attribute :userdn, :kind_of => [ Array, String ]
 attribute :groupdn, :kind_of => [ Array, String ]
