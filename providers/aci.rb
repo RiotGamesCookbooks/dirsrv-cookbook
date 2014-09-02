@@ -32,25 +32,36 @@ action :set do
 
   converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
 
-     permit = new_resource.permit? 'allow' : 'deny'
-     new_aci = { permit: permit, rights: new_resource.rights }
+     permit = new_resource.permit ? 'allow' : 'deny'
+     new_aci_rules = { permission: { permit: permit, rights: new_resource.rights } }
 
-     new_aci = compose_aci( new_resource.label, new_aci )
+     [ 'userdn', 'groupdn', 'targetattr', 'ip', 'dns' ].each do |type|
+       ruleset = new_resource.send("#{type}_rule")
+       next if ruleset.nil?
+       ruleset.values.each do |v|
+         # bomb out if the values are not arrays
+         Chef::Application.fatal!("#{v} is not an array!") unless v.kind_of?(Array)
+         new_aci_rules.merge!({ type.to_sym => ruleset })
+       end
+     end
 
+    access_control_instruction = compose_aci( new_resource.label, new_aci_rules )
+    pp access_control_instruction.inspect
     # ldap_entry doesn't have a specific parameter that allows 
     # us to control just one value of a multi-valued attribute, 
     # so we need to check whether or not we should update
 
-    if current_aci.nil? or current_aci[:aci] != new_aci
+    if current_aci.nil? or current_aci[:aci] != access_control_instruction
       ldap_entry new_resource.distinguished_name do
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
         databag_name new_resource.databag_name
         unless current_aci.nil?
+          pp current_aci[:aci].inspect
           prune ({ aci: current_aci[:aci] })
         end
-        append_attributes({ aci: new_aci })
+        append_attributes({ aci: access_control_instruction })
       end
     end
   end
@@ -91,14 +102,14 @@ def compose_aci( label, rules )
   aci = Array.new
 
   if rules.key?(:targetattr)
-    rules['targetattr'].each do |equality, attributes|
+    rules[:targetattr].each do |equality, attributes|
       attributes = attributes.join(' || ')
       aci.push("(targetattr#{equality}\"#{attributes}\")")
     end
   end
 
   if rules.key?(:target)
-    rules['target'].each do |equality, dn|
+    rules[:target].each do |equality, dn|
       unless dn.match(/^ldap:\/\/\//)
         dn = "ldap:///" + dn
       end
@@ -107,12 +118,12 @@ def compose_aci( label, rules )
   end
 
   if rules.key?(:targetfilter)
-    rules['targetfilter'].each do |equality, filter|
+    rules[:targetfilter].each do |equality, filter|
       aci.push("(targetattr#{equality}\"#{filter}\")")
     end
   end
 
-  aci.push("(version 3.0; acl #{label};")
+  aci.push("(version 3.0; acl \"#{label}\";")
   aci.push("#{rules[:permission][:permit]} (#{rules[:permission][:rights].join(',')})" )
 
   # users, groups and roles
@@ -124,10 +135,6 @@ def compose_aci( label, rules )
         userspec.push("#{rule}#{equality}\"#{dn}\"")
       end
     end
-  end
-
-  unless userspec.size > 0
-    userspec.push("userdn=\"ldap:///all\"")
   end
 
   userspec = userspec.join(' or ')
@@ -203,11 +210,11 @@ def load_current_resource
           value = value.split(/\,/)
         end
 
-        if @current_resource[label][rule].nil?
-          @current_resource[label][rule] = OrderedHash.new
-          @current_resource[label][rule][equality] = [ value ]
+        if @current_resource[label][rule.to_sym].nil?
+          @current_resource[label][rule.to_sym] = OrderedHash.new
+          @current_resource[label][rule.to_sym][equality] = [ value ]
         else
-          @current_resource[label][rule][equality].push(value)
+          @current_resource[label][rule.to_sym][equality].push(value)
         end
       end
     end

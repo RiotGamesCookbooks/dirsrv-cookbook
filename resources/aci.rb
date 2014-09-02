@@ -35,18 +35,14 @@ attribute :label, :kind_of => String, :name_attribute => true
 attribute :distinguished_name, :kind_of => String, :required => true
 attribute :permit, :kind_of => [ TrueClass, FalseClass ], :default => true
 attribute :rights, :kind_of => Array, :default => [ 'all' ]
-# positive
-attribute :userdn, :kind_of => [ Array, String ]
-attribute :groupdn, :kind_of => [ Array, String ]
-attribute :attribute_list, :kind_of => Array, :default => [ '*' ]
-attribute :access_hosts, :kind_of => [ Array, String ]
-# negative
-attribute :not_userdn, :kind_of => [ Array, String ]
-attribute :not_groupdn, :kind_of => [ Array, String ]
-attribute :not_attribute_list, :kind_of => Array
-attribute :not_access_hosts, :kind_of => [ Array, String ]
+# rules
+attribute :userdn_rule, :kind_of => Hash, :default => { '=' => [ 'ldap:///all' ] }
+attribute :groupdn_rule, :kind_of => Hash
+attribute :targetattr_rule, :kind_of => Hash, :default => { '=' => [ '*' ] }
+attribute :ip_rule, :kind_of => Hash
+attribute :dns_rule, :kind_of => Hash
 # time spec
-attribute :days_of_week, :kind_of => [ Array, String ]
+attribute :day_of_week, :kind_of => [ Array, String ]
 attribute :time_of_day_start, :kind_of => String
 attribute :time_of_day_end, :kind_of => String
 # for ldap_entry

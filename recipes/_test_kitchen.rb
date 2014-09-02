@@ -109,11 +109,7 @@ end
 
 ldap_user "awillis"
 
-dirsrv_aci 'SIE Group' do
-  distinguished_name 'o=kitchen'
-end
-
-dirsrv_aci 'Configuration Administrator' do
+dirsrv_aci 'test aci' do
   distinguished_name 'o=kitchen'
 end
 
@@ -121,6 +117,6 @@ end
 #  distinguished_name 'ou=people,o=kitchen'
 #end
 
-dirsrv_aci 'Enable Group Expansion' do
-  distinguished_name 'o=netscaperoot'
-end
+#dirsrv_aci 'Enable Group Expansion' do
+#  distinguished_name 'o=netscaperoot'
+#end
