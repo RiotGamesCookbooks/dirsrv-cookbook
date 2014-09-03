@@ -36,9 +36,9 @@ attribute :distinguished_name, :kind_of => String, :required => true
 attribute :permit, :kind_of => [ TrueClass, FalseClass ], :default => true
 attribute :rights, :kind_of => Array, :default => [ 'all' ]
 # rules
-attribute :userdn_rule, :kind_of => Hash, :default => { '=' => [ 'ldap:///all' ] }
+attribute :userdn_rule, :kind_of => Hash
 attribute :groupdn_rule, :kind_of => Hash
-attribute :targetattr_rule, :kind_of => Hash, :default => { '=' => [ '*' ] }
+attribute :targetattr_rule, :kind_of => Hash
 attribute :ip_rule, :kind_of => Hash
 attribute :dns_rule, :kind_of => Hash
 # time spec
