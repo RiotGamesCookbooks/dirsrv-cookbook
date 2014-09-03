@@ -18,8 +18,6 @@
 # limitations under the License.
 #
 
-use_inline_resources
-
 def whyrun_supported?
   true
 end
@@ -30,49 +28,101 @@ action :set do
   @current_resource = load_current_resource
   current_aci = @current_resource[new_resource.label.to_s]
 
+  permit = new_resource.permit ? 'allow' : 'deny'
+  new_aci_rules = { permission: { permit: permit, rights: new_resource.rights } }
+
+  [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
+    ruleset = new_resource.send("#{type}_rule")
+    next if ruleset.nil?
+    ruleset.values.each do |v|
+      # bomb out if the values are not arrays
+      Chef::Application.fatal!("#{v} is not an array!") unless v.kind_of?(Array)
+    end
+    new_aci_rules.merge!({ type => ruleset })
+  end
+
+  access_control_instruction = compose_aci( new_resource.label, new_aci_rules )
+
+  # ldap_entry doesn't have a specific parameter that allows 
+  # us to control just one value of a multi-valued attribute, 
+  # so we need to check whether or not we should update
+
   converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-
-     permit = new_resource.permit ? 'allow' : 'deny'
-     new_aci_rules = { permission: { permit: permit, rights: new_resource.rights } }
-
-     [ 'userdn', 'groupdn', 'targetattr', 'ip', 'dns' ].each do |type|
-       ruleset = new_resource.send("#{type}_rule")
-       next if ruleset.nil?
-       ruleset.values.each do |v|
-         # bomb out if the values are not arrays
-         Chef::Application.fatal!("#{v} is not an array!") unless v.kind_of?(Array)
-         new_aci_rules.merge!({ type.to_sym => ruleset })
-       end
-     end
-
-    access_control_instruction = compose_aci( new_resource.label, new_aci_rules )
-    pp access_control_instruction.inspect
-    # ldap_entry doesn't have a specific parameter that allows 
-    # us to control just one value of a multi-valued attribute, 
-    # so we need to check whether or not we should update
-
-    if current_aci.nil? or current_aci[:aci] != access_control_instruction
-      ldap_entry new_resource.distinguished_name do
-        host   new_resource.host
-        port   new_resource.port
-        credentials new_resource.credentials
-        databag_name new_resource.databag_name
-        unless current_aci.nil?
-          pp current_aci[:aci].inspect
-          prune ({ aci: current_aci[:aci] })
-        end
-        append_attributes({ aci: access_control_instruction })
+    ldap_entry new_resource.distinguished_name do
+      host   new_resource.host
+      port   new_resource.port
+      credentials new_resource.credentials
+      databag_name new_resource.databag_name
+      append_attributes({ aci: access_control_instruction })
+      unless current_aci.nil?
+        prune ({ aci: current_aci[:aci] })
       end
     end
   end
 end
 
 action :extend do
-# add values
+
+  @connectinfo = load_connection_info
+  @current_resource = load_current_resource
+  aci_rules = @current_resource[new_resource.label.to_s]
+
+  [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
+    ruleset = new_resource.send("#{type}_rule")
+    next if ruleset.nil?
+    ruleset.each do |equality, value|
+      # bomb out if the values are not arrays
+      Chef::Application.fatal!("#{value} is not an array!") unless value.kind_of?(Array)
+      aci_rules[type][equality] = ( value | aci_rules[type][equality] )
+    end
+  end
+
+  access_control_instruction = compose_aci( new_resource.label, aci_rules )
+
+  converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
+    ldap_entry new_resource.distinguished_name do
+      host   new_resource.host
+      port   new_resource.port
+      credentials new_resource.credentials
+      databag_name new_resource.databag_name
+      append_attributes({ aci: access_control_instruction })
+      unless current_aci.nil?
+        prune ({ aci: current_aci[:aci] })
+      end
+    end
+  end
 end
 
-action :restrict do
-# remove values
+action :rescind do
+
+  @connectinfo = load_connection_info
+  @current_resource = load_current_resource
+  aci_rules = @current_resource[new_resource.label.to_s]
+
+  [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
+    ruleset = new_resource.send("#{type}_rule")
+    next if ruleset.nil?
+    ruleset.each do |equality, value|
+      # bomb out if the values are not arrays
+      Chef::Application.fatal!("#{value} is not an array!") unless value.kind_of?(Array)
+      aci_rules[type][equality] = ( aci_rules[type][equality] - value )
+    end
+  end
+
+  access_control_instruction = compose_aci( new_resource.label, aci_rules )
+
+  converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
+    ldap_entry new_resource.distinguished_name do
+      host   new_resource.host
+      port   new_resource.port
+      credentials new_resource.credentials
+      databag_name new_resource.databag_name
+      append_attributes({ aci: access_control_instruction })
+      unless current_aci.nil?
+        prune ({ aci: current_aci[:aci] })
+      end
+    end
+  end
 end
 
 action :unset do
@@ -96,8 +146,6 @@ action :unset do
 end
 
 def compose_aci( label, rules )
-
-  pp rules.inspect
 
   aci = Array.new
 
@@ -131,8 +179,10 @@ def compose_aci( label, rules )
 
   [ :userdn, :userdnattr, :groupdn, :groupdnattr, :roledn ].each do |rule|
     if rules.key?(rule)
-      rules[rule].each do |equality, dn|
-        userspec.push("#{rule}#{equality}\"#{dn}\"")
+      rules[rule].each do |equality, dnattrlist|
+        dnattrlist.each do |dnattr|
+          userspec.push("#{rule}#{equality}\"#{dnattr}\"")
+        end
       end
     end
   end
@@ -145,8 +195,10 @@ def compose_aci( label, rules )
 
   [ :ip, :dns ].each do |rule|
     if rules.key?(rule)
-      rules[rule].each do |equality, host|
-        hostspec.push("#{rule}#{equality}\"#{host}\"")
+      rules[rule].each do |equality, hosts|
+        hosts.each do |host|
+          hostspec.push("#{rule}#{equality}\"#{host}\"")
+        end
       end
     end
   end
@@ -205,7 +257,7 @@ def load_current_resource
 
         case rule
         when 'targetattr'
-          value = value.split(/\s*||\s*/)
+          value = value.split(/\s*\|\|\s*/)
         when 'dayofweek'
           value = value.split(/\,/)
         end

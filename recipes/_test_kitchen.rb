@@ -109,14 +109,15 @@ end
 
 ldap_user "awillis"
 
-dirsrv_aci 'test aci' do
+dirsrv_aci 'sink aci' do
   distinguished_name 'o=kitchen'
+  rights [ 'compare', 'write' ]
+  targetattr_rule ({ '!=' => [ 'uid', 'sn', 'cn' ] })
+  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
+  dns_rule        ({ '=' => [ '.vagrant' ] })
+  ip_rule         ({ '=' => [ '10.0.0.1' ] })
+  day_of_week     [ 'Tue', 'Wed', 'Thu' ]
+  time_of_day_start '900'
+  time_of_day_end   '1700'
 end
 
-#dirsrv_aci 'Engineering Group Permissions' do
-#  distinguished_name 'ou=people,o=kitchen'
-#end
-
-#dirsrv_aci 'Enable Group Expansion' do
-#  distinguished_name 'o=netscaperoot'
-#end
