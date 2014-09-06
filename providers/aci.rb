@@ -45,17 +45,22 @@ action :set do
     @current_resource[new_resource.label.to_s] = Hash.new
   end
 
-  @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
-  access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
+  old_aci = @current_resource[new_resource.label.to_s][:aci]
+  new_aci = compose_aci( new_resource.label, aci_rules )
 
   converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-    ldap_entry "#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
-      distinguished_name new_resource.distinguished_name
-      host   new_resource.host
-      port   new_resource.port
-      credentials new_resource.credentials
-      databag_name new_resource.databag_name
-      append_attributes({ aci: access_control_instruction })
+    if old_aci != new_aci
+      ldap_entry "#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
+        distinguished_name new_resource.distinguished_name
+        host   new_resource.host
+        port   new_resource.port
+        credentials new_resource.credentials
+        databag_name new_resource.databag_name
+        append_attributes({ aci: new_aci })
+        if old_aci
+          prune({ aci: old_aci })
+        end
+      end
     end
   end
 end
@@ -67,7 +72,7 @@ action :extend do
   aci_rules = @current_resource[new_resource.label.to_s]
 
   if aci_rules.nil?
-    Chef::Log.warn("aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name} does not exist, skipping")
+    Chef::Log.warn("aci-#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name} does not exist, skipping")
   else
     [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
       ruleset = new_resource.send("#{type}_rule")
@@ -76,23 +81,32 @@ action :extend do
         ruleset.each do |equality, value|
           # bomb out if the values are not arrays
           Chef::Application.fatal!("#{value} is not an array!") unless value.kind_of?(Array)
-          existing = aci_rules[type].key?(equality) ? aci_rules[type][equality] : []
-          aci_rules[type][equality] = ( value | existing )
+
+          if aci_rules.key?(type)
+            value.map!{ |v| v !~ /^ldap:\/\/\// ?  "ldap:///#{v}" : v }
+            existing = aci_rules[type].key?(equality) ? aci_rules[type][equality] : []
+            aci_rules[type][equality] = ( value | existing )
+          else
+            aci_rules[type] = { equality => value }
+          end
         end
       end
     end
 
-    @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
-    access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
+    old_aci = @current_resource[new_resource.label.to_s][:aci]
+    new_aci = compose_aci( new_resource.label, aci_rules )
 
-    converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
-        distinguished_name new_resource.distinguished_name
-        host   new_resource.host
-        port   new_resource.port
-        credentials new_resource.credentials
-        databag_name new_resource.databag_name
-        append_attributes({ aci: access_control_instruction })
+    converge_by("Processing ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
+      if old_aci != new_aci
+        ldap_entry "aci-#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
+          distinguished_name new_resource.distinguished_name
+          host   new_resource.host
+          port   new_resource.port
+          credentials new_resource.credentials
+          databag_name new_resource.databag_name
+          append_attributes({ aci: new_aci })
+          prune({ aci: old_aci })
+        end
       end
     end
   end
@@ -113,24 +127,29 @@ action :rescind do
         ruleset.each do |equality, value|
           # bomb out if the values are not arrays
           Chef::Application.fatal!("#{value} is not an array!") unless value.kind_of?(Array)
-          if aci_rules[type].key?(equality)
+          if aci_rules.key?(type) and aci_rules[type].key?(equality)
+            value.map!{ |v| v !~ /^ldap:\/\/\// ?  "ldap:///#{v}" : v }
             aci_rules[type][equality] -= value
+            aci_rules[type].delete(equality) if aci_rules[type][equality].size == 0
           end
         end
       end
     end
 
-    @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
-    access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
+    old_aci = @current_resource[new_resource.label.to_s][:aci]
+    new_aci = compose_aci( new_resource.label, aci_rules )
 
-    converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
-        distinguished_name new_resource.distinguished_name
-        host   new_resource.host
-        port   new_resource.port
-        credentials new_resource.credentials
-        databag_name new_resource.databag_name
-        append_attributes({ aci: access_control_instruction })
+    converge_by("Processing ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
+      if old_aci != new_aci
+        ldap_entry "aci-#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
+          distinguished_name new_resource.distinguished_name
+          host   new_resource.host
+          port   new_resource.port
+          credentials new_resource.credentials
+          databag_name new_resource.databag_name
+          append_attributes({ aci: new_aci })
+          prune({ aci: old_aci })
+        end
       end
     end
   end
@@ -144,15 +163,15 @@ action :unset do
   if aci_rules
     converge_by("Removing #{new_resource.label} from #{new_resource.distinguished_name}") do
 
-      access_control_instruction = aci_rules[:aci]
+      old_aci = aci_rules[:aci]
 
-      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
+      ldap_entry "aci-#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
         distinguished_name new_resource.distinguished_name
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
         databag_name new_resource.databag_name
-        prune ({ aci: access_control_instruction })
+        prune ({ aci: old_aci })
       end
     end
   end
@@ -171,7 +190,7 @@ def compose_aci( label, rules )
 
   if rules.key?(:target)
     rules[:target].each do |equality, dn|
-      unless dn.match(/^ldap:\/\/\//)
+      if dn !~ /^ldap:\/\/\//
         dn = "ldap:///" + dn
       end
       aci.push("(target#{equality}\"#{dn}\")")
@@ -198,6 +217,9 @@ def compose_aci( label, rules )
     if rules.key?(rule)
       rules[rule].each do |equality, dnattrlist|
         dnattrlist.each do |dnattr|
+          if [ :userdn, :groupdn, :roledn ].grep(rule).first and dnattr !~ /^ldap:\/\/\//
+            dnattr = "ldap:///" + dnattr
+          end
           userspec.push("#{rule}#{equality}\"#{dnattr}\"")
         end
       end
@@ -258,9 +280,9 @@ def load_current_resource
   ldap = Chef::Ldap.new
   @connectinfo = load_connection_info
   @current_resource = OrderedHash.new
-  results = ldap.search( @connectinfo, @new_resource.distinguished_name, '(objectClass=*)', 'base', [ 'aci' ] )
-pp results.first[:aci].first.inspect
-  results.first[:aci].each do |aci|
+  entry = ldap.get_entry( @connectinfo, @new_resource.distinguished_name )
+
+  entry[:aci].each do |aci|
 
     label = aci.match(/acl \"(.*?)\";/).captures.first
     @current_resource[label] = { aci: aci }

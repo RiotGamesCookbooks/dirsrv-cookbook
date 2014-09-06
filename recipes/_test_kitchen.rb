@@ -28,7 +28,6 @@ dirsrv_instance node[:hostname] + '_389' do
   cfgdir_addr   node[:ipaddress]
   cfgdir_domain 'kitchen'
   cfgdir_ldap_port 389
-  add_sample_entries true
   host         node[:fqdn]
   suffix       'o=kitchen'
   action       [ :create, :start ]
@@ -60,20 +59,10 @@ end
 
 ## Plugin
 
-dirsrv_plugin "MemberOf Plugin" do
-  action :disable
-end
-
-dirsrv_plugin "MemberOf Plugin"
-
-dirsrv_plugin "MemberOf Plugin" do
-  action :disable
-end
-
 dirsrv_plugin "MemberOf Plugin"
 
 ## Index
-# No disable
+
 dirsrv_index "uid" do
   equality true
   presence true
@@ -100,7 +89,7 @@ end
 
 ldap_user "awillis"
 
-dirsrv_aci 'sink aci' do
+dirsrv_aci 'kitchen aci' do
   distinguished_name 'o=kitchen'
   rights [ 'compare', 'write' ]
   targetattr_rule ({ '!=' => [ 'uid', 'sn', 'cn' ] })
@@ -112,3 +101,20 @@ dirsrv_aci 'sink aci' do
   time_of_day_end   '1700'
 end
 
+dirsrv_aci 'kitchen aci' do
+  distinguished_name 'o=kitchen'
+  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
+  action :rescind
+end
+
+dirsrv_aci 'SIE Group' do
+  distinguished_name 'o=kitchen'
+  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
+  action :extend
+end
+
+dirsrv_aci 'SIE Group' do
+  distinguished_name 'o=kitchen'
+  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
+  action :rescind
+end
