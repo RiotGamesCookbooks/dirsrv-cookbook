@@ -26,11 +26,9 @@ action :set do
 
   @connectinfo = load_connection_info
   @current_resource = load_current_resource
-  aci_rules = @current_resource[new_resource.label.to_s]
-  Chef::Log.info("These are the current aci rules: #{aci_rules}")
 
   permit = new_resource.permit ? 'allow' : 'deny'
-  new_aci_rules = { permission: { permit: permit, rights: new_resource.rights } }
+  aci_rules = { permission: { permit: permit, rights: new_resource.rights } }
 
   [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
     ruleset = new_resource.send("#{type}_rule")
@@ -39,27 +37,25 @@ action :set do
         # bomb out if the values are not arrays
         Chef::Application.fatal!("#{v} is not an array!") unless v.kind_of?(Array)
       end
-      new_aci_rules.merge!({ type => ruleset })
+      aci_rules.merge!({ type => ruleset })
     end
   end
 
-  access_control_instruction = compose_aci( new_resource.label, new_aci_rules )
+  unless @current_resource.key?(new_resource.label.to_s)
+    @current_resource[new_resource.label.to_s] = Hash.new
+  end
 
-  # ldap_entry doesn't have a specific parameter that allows 
-  # us to control just one value of a multi-valued attribute, 
-  # so we need to check whether or not we should update
-  Chef::Log.info(access_control_instruction)
+  @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
+  access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
 
   converge_by("Setting ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-    ldap_entry new_resource.distinguished_name do
+    ldap_entry "#{new_resource.label.gsub(/\ /, '_')}-#{new_resource.distinguished_name}" do
+      distinguished_name new_resource.distinguished_name
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
       databag_name new_resource.databag_name
       append_attributes({ aci: access_control_instruction })
-      if aci_rules and aci_rules[:aci]
-        prune ({ aci: aci_rules[:aci] })
-      end
     end
   end
 end
@@ -71,7 +67,7 @@ action :extend do
   aci_rules = @current_resource[new_resource.label.to_s]
 
   if aci_rules.nil?
-    Chef::Log.warn("ACI #{new_resource.label} on DN #{new_resource.distinguished_name} does not exist, skipping")
+    Chef::Log.warn("aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name} does not exist, skipping")
   else
     [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
       ruleset = new_resource.send("#{type}_rule")
@@ -86,18 +82,17 @@ action :extend do
       end
     end
 
-    access_control_instruction = compose_aci( new_resource.label, aci_rules )
+    @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
+    access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
 
     converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-      ldap_entry new_resource.distinguished_name do
+      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
+        distinguished_name new_resource.distinguished_name
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
         databag_name new_resource.databag_name
         append_attributes({ aci: access_control_instruction })
-        if aci_rules and aci_rules[:aci]
-          prune ({ aci: aci_rules[:aci] })
-        end
       end
     end
   end
@@ -110,7 +105,7 @@ action :rescind do
   aci_rules = @current_resource[new_resource.label.to_s]
 
   if aci_rules.nil?
-    Chef::Log.warn("ACI #{new_resource.label} on #{new_resource.distinguished_name} does not exist, skipping")
+    Chef::Log.warn("ACI '#{new_resource.label}' on #{new_resource.distinguished_name} does not exist, skipping")
   else
     [ :userdn, :groupdn, :targetattr, :ip, :dns ].each do |type|
       ruleset = new_resource.send("#{type}_rule")
@@ -125,18 +120,17 @@ action :rescind do
       end
     end
 
-    access_control_instruction = compose_aci( new_resource.label, aci_rules )
+    @current_resource[new_resource.label.to_s][:aci] = compose_aci( new_resource.label, aci_rules )
+    access_control_instruction = @current_resource.values.map{ |a| a[:aci] }
 
     converge_by("Extending ACI '#{new_resource.label}' on #{new_resource.distinguished_name}") do
-      ldap_entry new_resource.distinguished_name do
+      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
+        distinguished_name new_resource.distinguished_name
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
         databag_name new_resource.databag_name
         append_attributes({ aci: access_control_instruction })
-        if aci_rules and aci_rules[:aci]
-          prune ({ aci: aci_rules[:aci] })
-        end
       end
     end
   end
@@ -145,13 +139,15 @@ end
 action :unset do
 
   @current_resource = load_current_resource
+  aci_rules = @current_resource[new_resource.label.to_s]
 
-  if @current_resource
+  if aci_rules
     converge_by("Removing #{new_resource.label} from #{new_resource.distinguished_name}") do
 
-      access_control_instruction = @current_resource[new_resource.label.to_s][:aci]
+      access_control_instruction = aci_rules[:aci]
 
-      ldap_entry @current_resource[:dn] do
+      ldap_entry "aci-'#{new_resource.label.gsub(/\ /, '_')}'-#{new_resource.distinguished_name}" do
+        distinguished_name new_resource.distinguished_name
         host   new_resource.host
         port   new_resource.port
         credentials new_resource.credentials
@@ -262,9 +258,9 @@ def load_current_resource
   ldap = Chef::Ldap.new
   @connectinfo = load_connection_info
   @current_resource = OrderedHash.new
-  entry = ldap.get_entry( @connectinfo, @new_resource.distinguished_name )
-
-  entry[:aci].each do |aci|
+  results = ldap.search( @connectinfo, @new_resource.distinguished_name, '(objectClass=*)', 'base', [ 'aci' ] )
+pp results.first[:aci].first.inspect
+  results.first[:aci].each do |aci|
 
     label = aci.match(/acl \"(.*?)\";/).captures.first
     @current_resource[label] = { aci: aci }
