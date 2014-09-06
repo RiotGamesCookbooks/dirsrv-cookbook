@@ -56,16 +56,7 @@ ldap_entry "ou=test,o=kitchen"
 
 dirsrv_config "nsslapd-auditlog-logging-enabled" do
   value  'on'
-  action :disable
 end
-
-dirsrv_config "nsslapd-auditlog-logging-enabled"
-
-dirsrv_config "nsslapd-auditlog-logging-enabled" do
-  action :disable
-end
-
-dirsrv_config "nsslapd-auditlog-logging-enabled"
 
 ## Plugin
 

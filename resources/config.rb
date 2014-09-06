@@ -17,8 +17,8 @@
 # limitations under the License.
 #
 
-actions :enable, :disable
-default_action :enable
+actions :set
+default_action :set
 
 attribute :attr, :kind_of => String, :name_attribute => true
 attribute :value, :kind_of => [ String, Array ], :default => []
