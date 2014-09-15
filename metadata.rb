@@ -3,7 +3,6 @@ maintainer       'Alan Willis'
 maintainer_email 'alwillis@riotgames.com'
 license          'All rights reserved'
 description      'Installs and configures 389 Directory Server'
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.1.1'
 
 depends 'ldap', '~> 1.0'
