@@ -9,7 +9,7 @@ provisioner:
   name: chef_solo
 
 platforms:
-  - name: centos-6.4
+  - name: centos-6.5
   - name: ubuntu-14.04
 
 suites:
