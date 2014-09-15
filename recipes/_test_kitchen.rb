@@ -88,33 +88,3 @@ ldap_user "awillis" do
 end
 
 ldap_user "awillis"
-
-dirsrv_aci 'kitchen aci' do
-  distinguished_name 'o=kitchen'
-  rights [ 'compare', 'write' ]
-  targetattr_rule ({ '!=' => [ 'uid', 'sn', 'cn' ] })
-  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
-  dns_rule        ({ '=' => [ '.vagrant' ] })
-  ip_rule         ({ '=' => [ '10.0.0.1' ] })
-  day_of_week     [ 'Tue', 'Wed', 'Thu' ]
-  time_of_day_start '900'
-  time_of_day_end   '1700'
-end
-
-dirsrv_aci 'kitchen aci' do
-  distinguished_name 'o=kitchen'
-  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
-  action :rescind
-end
-
-dirsrv_aci 'SIE Group' do
-  distinguished_name 'o=kitchen'
-  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
-  action :extend
-end
-
-dirsrv_aci 'SIE Group' do
-  distinguished_name 'o=kitchen'
-  userdn_rule     ({ '=' => [ 'uid=awillis,o=kitchen' ] })
-  action :rescind
-end
