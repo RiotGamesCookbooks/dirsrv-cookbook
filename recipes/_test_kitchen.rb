@@ -78,13 +78,33 @@ ldap_user "awillis" do
   shell "/bin/bash"
   is_extensible true
   password "Super Cool Passwords Are Super Cool!!!!!"
-  action :delete
 end
 
-ldap_user "awillis"
-
-ldap_user "awillis" do
-  action :delete
+ldap_user "test" do
+  basedn "o=kitchen"
+  surname 'Kitchen'
+  home "/home/test"
+  shell "/bin/bash"
+  is_extensible true
 end
 
-ldap_user "awillis"
+# ACI
+
+ldap_aci "allow test kitchen" do
+  distinguished_name 'uid=awillis,o=kitchen'
+  rights ([ 'read', 'search', 'compare' ])
+  userdn_rule ({ '=' => 'uid=test,o=kitchen' })
+  day_of_week ([ 'Mon', 'Wed', 'Fri' ])
+end
+
+ldap_aci "allow test kitchen" do
+  distinguished_name 'uid=awillis,o=kitchen'
+  userdn_rule ({ '=' => 'uid=sink,o=kitchen' })
+  action :extend
+end
+
+ldap_aci "allow test kitchen" do
+  distinguished_name 'uid=awillis,o=kitchen'
+  userdn_rule ({ '=' => 'uid=test,o=kitchen' })
+  action :rescind
+end
