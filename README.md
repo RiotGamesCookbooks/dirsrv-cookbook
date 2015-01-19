@@ -231,9 +231,9 @@ The 'credentials' attribute found on many of these resources provides a way to u
 
 key      | value | example
 ---------|-------|--------
-userdn   | The bind DN used to initialize the instance and create the initial set of LDAP entries | 'cn=Directory Manager' |
+bind_dn  | The bind DN used to initialize the instance and create the initial set of LDAP entries | 'cn=Directory Manager' |
 password | The password, in plain text | 'Super Cool Passwords Are Super Cool!!!!!'
-user     | Used by the admin_credentials attribute to setup the 389 admin server | 'manager'
+username | Used by the admin_credentials attribute to setup the 389 admin server | 'manager'
 
 You can specify userdn or user, or both of them if you want the user of the Admin Server to have the same password as the Directory Manager. Of course, you can have many different sets of credentials.
 
