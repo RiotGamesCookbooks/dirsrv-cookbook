@@ -123,8 +123,9 @@ action :start do
       service_name "dirsrv"
       supports :status => true
       if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
-        start_command "systemctl start dirsrv@#{new_resource.instance}"
-        status_command "systemctl status dirsrv@#{new_resource.instance}"
+        start_command "systemctl start dirsrv\\@#{new_resource.instance}"
+        restart_command "systemctl restart dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
       else
         start_command "service dirsrv start #{new_resource.instance}"
         status_command "service dirsrv status #{new_resource.instance}"
@@ -151,8 +152,8 @@ action :stop do
       service_name "dirsrv"
       supports :status => true
       if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
-        start_command "systemctl stop dirsrv@#{new_resource.instance}"
-        status_command "systemctl status dirsrv@#{new_resource.instance}"
+        stop_command "systemctl stop dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
       else
         stop_command "service dirsrv stop #{new_resource.instance}"
         status_command "service dirsrv status #{new_resource.instance}"
@@ -175,8 +176,8 @@ action :restart do
       service_name "dirsrv"
       supports :status => true, :restart => true
       if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
-        start_command "systemctl restart dirsrv@#{new_resource.instance}"
-        status_command "systemctl status dirsrv@#{new_resource.instance}"
+        restart_command "systemctl restart dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
       else
         restart_command "service dirsrv restart #{new_resource.instance}"
         status_command "service dirsrv status #{new_resource.instance}"
