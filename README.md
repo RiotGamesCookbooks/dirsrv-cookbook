@@ -62,27 +62,7 @@ __ACTIONS__
 * stop
 * restart
 
-### dirsrv_entry
-
-After the initial setup of the directory server, all subsequent configuration can be accomplished by manipulating LDAP entries in the directory itself. This resource is used to manage generic LDAP entries. It makes use of the ruby net-ldap library, and can be used with any LDAP directory service.
-
-Name | Description | Type | Default
------|-------------|------|----------
-dn | Distinguished Name (DN) | String | Name Attribute
-attributes | Attributes to be set on the entry. Existing attributes of the same name will have their contents replaced | Hash 
-append_attributes | Attributes whose values are to be appended to any existing values, if any | Hash
-seed_attributes | Attributes whose values are to be set once and not modified again | Hash
-prune | List of attributes to be removed, or a Hash of attributes with specific values to be removed | Array or Hash 
-host | The host to connect to | String | localhost
-port | The port to connect to | Integer | 389
-credentials | See the 'Credentials' section below | String or Hash | 'default'
-databag_name | The databag that will be used to lookup the credentials data bag item | String | The name of the calling cookbook
-
-__ACTIONS__
-* __create__
-* delete
-
-__*The resources below all make use of this one to create objects in the directory server. This means that they also require the 'host', 'port', 'credentials' and 'databag_name' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
+__*The resources below all make use of the ldap_entry provider from the ldap cookbook. This means that they also use the 'host', 'port', 'credentials' and 'databag_name' parameters which are simply passed through to this resource. Omitting these common parameters from the resource descriptions below for brevity*__
 
 ### dirsrv_config
 
