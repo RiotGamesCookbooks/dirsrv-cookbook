@@ -33,8 +33,13 @@ node[:dirsrv][:packages].each do |pkg|
   package pkg
 end
 
-chef_gem "orderedhash"
-chef_gem "json"
+chef_gem "orderedhash" do
+  compile_time true
+end
+
+chef_gem "json" do
+  compile_time true
+end
 
 user "dirsrv" do
   system true
