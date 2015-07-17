@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.omnibus.chef_version = :latest
+  config.omnibus.chef_version = "12.3.0"
   config.vm.box = "opscode-centos-6.4"
   config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.4_chef-provisionerless.box"
 
