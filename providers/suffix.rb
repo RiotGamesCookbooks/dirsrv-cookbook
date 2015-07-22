@@ -32,13 +32,23 @@ action :create do
 
     backend_name = new_resource.nsslapd_backend.nil? ? new_resource.suffix.gsub(/(,|=)/, '_') : new_resource.nsslapd_backend
 
+    backend_attrs = { 'nsslapd-suffix' => new_resource.suffix.to_s }
+
+    if new_resource.nsslapd_cachememsize
+        backend_attrs['nsslapd-cachememsize'] = new_resource.nsslapd_cachememsize.to_s
+    end
+
+    if new_resource.nsslapd_dncachememsize
+        backend_attrs['nsslapd-dncachememsize'] = new_resource.nsslapd_cachememsize.to_s
+    end
+
     ldap_entry "cn=#{backend_name},cn=ldbm database,cn=plugins,cn=config" do
       host   new_resource.host
       port   new_resource.port
       credentials new_resource.credentials
       databag_name new_resource.databag_name
       attributes({ 'objectClass' => [ 'top', 'extensibleObject', 'nsBackendInstance' ] })
-      seed_attributes({ 'nsslapd-suffix' => new_resource.suffix.to_s })
+      seed_attributes backend_attrs
     end
 
     # mapping tree
@@ -66,7 +76,7 @@ action :create do
       port   new_resource.port
       credentials new_resource.credentials
       databag_name new_resource.databag_name
-      attributes({ 'objectClass' => [ 'top', 'extensibleObject' ] })
+      attributes({ 'objectClass' => new_resource.entry_object_class_list })
     end
   end
 end
