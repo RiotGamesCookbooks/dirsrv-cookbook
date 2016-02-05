@@ -23,8 +23,8 @@ include_recipe "ldap"
 if node[:dirsrv][:use_yum_epel] and platform_family?("rhel")
   yum_repository 'epel' do
     description 'Extra Packages for Enterprise Linux'
-    mirrorlist 'http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=$basearch'
-    gpgkey 'http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6'
+    mirrorlist "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-#{node[:platform_version].split(".").first}&arch=$basearch"
+    gpgkey "http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-#{node[:platform_version].split(".").first}"
     action :create
   end
 end

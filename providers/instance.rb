@@ -122,8 +122,14 @@ action :start do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true
-      start_command "service dirsrv start #{new_resource.instance}"
-      status_command "service dirsrv status #{new_resource.instance}"
+      if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
+        start_command "systemctl start dirsrv\\@#{new_resource.instance}"
+        restart_command "systemctl restart dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
+      else
+        start_command "service dirsrv start #{new_resource.instance}"
+        status_command "service dirsrv status #{new_resource.instance}"
+      end
       action :start
     end
 
@@ -145,8 +151,13 @@ action :stop do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true
-      stop_command "service dirsrv stop #{new_resource.instance}"
-      status_command "service dirsrv status #{new_resource.instance}"
+      if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
+        stop_command "systemctl stop dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
+      else
+        stop_command "service dirsrv stop #{new_resource.instance}"
+        status_command "service dirsrv status #{new_resource.instance}"
+      end
       action :stop
     end
 
@@ -164,8 +175,13 @@ action :restart do
     service "dirsrv-#{new_resource.instance}" do
       service_name "dirsrv"
       supports :status => true, :restart => true
-      restart_command "service dirsrv restart #{new_resource.instance}"
-      status_command "service dirsrv status #{new_resource.instance}"
+      if node[:platform_family] == 'rhel' && node[:platform_version].to_i >= 7
+        restart_command "systemctl restart dirsrv\\@#{new_resource.instance}"
+        status_command "systemctl status dirsrv\\@#{new_resource.instance}"
+      else
+        restart_command "service dirsrv restart #{new_resource.instance}"
+        status_command "service dirsrv status #{new_resource.instance}"
+      end
       action :restart
     end
 
